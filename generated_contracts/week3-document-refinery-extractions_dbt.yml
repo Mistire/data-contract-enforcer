@@ -1,38 +1,231 @@
+# dbt schema.yml — Week 3 Document Refinery Extractions
+# Kept in sync with: generated_contracts/week3-document-refinery-extractions.yaml
+#
+# Contract rules mapped to dbt tests:
+#   - not_null        → required: true in Bitol contract
+#   - unique          → unique: true in Bitol contract
+#   - accepted_values → enum constraint in Bitol contract
+#   - relationships   → entity_refs[] must reference entities[] in same record
+#   - dbt_utils.expression_is_true → range/statistical constraints
+#
+# Run with: dbt test --select week3_extractions
+# Or:       dbt test --select tag:week3
+
 version: 2
+
 models:
-- name: week3-document-refinery-extractions
-  columns:
-  - name: doc_id
-    tests:
-    - not_null
-  - name: source_path
-    tests:
-    - not_null
-  - name: source_hash
-    tests:
-    - not_null
-  - name: extraction_model
-    tests:
-    - not_null
-  - name: processing_time_ms
-    tests:
-    - not_null
-  - name: token_count.input
-    tests:
-    - not_null
-  - name: token_count.output
-    tests:
-    - not_null
-  - name: extracted_at
-    tests:
-    - not_null
-  - name: extracted_facts.fact_id
-    tests: []
-  - name: extracted_facts.text
-    tests: []
-  - name: extracted_facts.confidence
-    tests: []
-  - name: extracted_facts.page_ref
-    tests: []
-  - name: extracted_facts.source_excerpt
-    tests: []
+  - name: week3_extractions
+    description: >
+      One record per processed document from the Week 3 Document Intelligence Refinery.
+      Each record contains all facts extracted from the source document and the entities
+      referenced. Sourced from outputs/week3/extractions.jsonl.
+    meta:
+      contract_id: week3-document-refinery-extractions
+      contract_version: "1.0.0"
+      bitol_yaml: generated_contracts/week3-document-refinery-extractions.yaml
+    tags:
+      - week3
+      - data_contract
+
+    columns:
+      # ── Primary key ──────────────────────────────────────────────────────────
+      - name: doc_id
+        description: >
+          Primary key. UUIDv4. Stable across re-extractions of the same source.
+          Generated via uuid5(NAMESPACE_URL, filename) during migration.
+        tests:
+          - not_null                    # required: true
+          - unique                      # unique: true
+          - dbt_utils.expression_is_true:
+              expression: "doc_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'"
+              config:
+                severity: error
+                error_if: ">0"
+              meta:
+                contract_clause: "format: uuid, pattern: ^[0-9a-f-]{36}$"
+
+      # ── Source provenance ────────────────────────────────────────────────────
+      - name: source_path
+        description: >
+          Absolute path or URL of the source document. Sentinel: filename string
+          when original path is unavailable.
+        tests:
+          - not_null                    # required: true
+
+      - name: source_hash
+        description: >
+          SHA-256 of the source file content. Changes iff the source content changes.
+          Sentinel: sha256(doc_id) when original file is unavailable.
+        tests:
+          - not_null                    # required: true
+          - dbt_utils.expression_is_true:
+              expression: "length(source_hash) = 64 and source_hash ~ '^[a-f0-9]+$'"
+              config:
+                severity: error
+              meta:
+                contract_clause: "pattern: ^[a-f0-9]{64}$ (SHA-256)"
+
+      # ── Extraction metadata ──────────────────────────────────────────────────
+      - name: extraction_model
+        description: >
+          Model identifier used for extraction. Must match pattern claude-* or gpt-*.
+          Sentinel: 'unknown' when model information is unavailable.
+        tests:
+          - not_null                    # required: true
+
+      - name: processing_time_ms
+        description: >
+          Time taken to process the document in milliseconds. Must be a non-negative
+          integer. Sentinel: 0 when timing information is unavailable.
+        tests:
+          - not_null                    # required: true
+          - dbt_utils.expression_is_true:
+              expression: "processing_time_ms >= 0"
+              config:
+                severity: warn
+              meta:
+                contract_clause: "minimum: 0"
+
+      - name: extracted_at
+        description: >
+          ISO 8601 timestamp when extraction was performed.
+          Sentinel: datetime.utcnow() when original timestamp is null.
+        tests:
+          - not_null                    # required: true
+          - dbt_utils.expression_is_true:
+              expression: "extracted_at::timestamp is not null"
+              config:
+                severity: error
+              meta:
+                contract_clause: "format: date-time (ISO 8601)"
+
+  # ── Flattened extracted_facts[] ─────────────────────────────────────────────
+  # In dbt, nested arrays are typically modelled as a separate model joined
+  # back to the parent. This model represents the exploded extracted_facts[].
+  - name: week3_extracted_facts
+    description: >
+      One row per extracted fact from week3_extractions. Exploded from
+      extracted_facts[] array. Join back to week3_extractions on doc_id.
+    meta:
+      contract_id: week3-document-refinery-extractions
+      contract_clause: extracted_facts[]
+      bitol_yaml: generated_contracts/week3-document-refinery-extractions.yaml
+    tags:
+      - week3
+      - data_contract
+
+    columns:
+      - name: fact_id
+        description: UUIDv4 primary key for each extracted fact.
+        tests:
+          - not_null
+          - unique
+          - dbt_utils.expression_is_true:
+              expression: "fact_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'"
+              config:
+                severity: error
+              meta:
+                contract_clause: "format: uuid"
+
+      - name: doc_id
+        description: Foreign key back to week3_extractions.doc_id.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('week3_extractions')
+              field: doc_id
+              config:
+                severity: error
+              meta:
+                contract_clause: "relationships: extracted_facts[].doc_id → week3_extractions.doc_id"
+
+      - name: confidence
+        description: >
+          Confidence score for this extracted fact. MUST be float in [0.0, 1.0].
+          BREAKING CHANGE if changed to integer 0-100 scale — this is the primary
+          contract enforcement target for Week 3.
+        tests:
+          - not_null                    # required: true
+          - dbt_utils.expression_is_true:
+              expression: "confidence >= 0.0 and confidence <= 1.0"
+              config:
+                severity: error
+                error_if: ">0"
+              meta:
+                contract_clause: "minimum: 0.0, maximum: 1.0 — BREAKING if changed to 0-100"
+
+      - name: text
+        description: The extracted fact in plain English.
+        tests:
+          - not_null
+
+      - name: page_ref
+        description: Page number the fact was extracted from. Nullable integer.
+        tests: []   # nullable — no not_null test
+
+      - name: source_excerpt
+        description: Verbatim text the fact was derived from.
+        tests: []   # nullable in practice
+
+  # ── Flattened entities[] ─────────────────────────────────────────────────────
+  - name: week3_entities
+    description: >
+      One row per entity from week3_extractions. Exploded from entities[] array.
+      Join back to week3_extractions on doc_id.
+    meta:
+      contract_id: week3-document-refinery-extractions
+      contract_clause: entities[]
+    tags:
+      - week3
+      - data_contract
+
+    columns:
+      - name: entity_id
+        description: UUIDv4 primary key for each entity.
+        tests:
+          - not_null
+          - unique
+          - dbt_utils.expression_is_true:
+              expression: "entity_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'"
+              config:
+                severity: error
+              meta:
+                contract_clause: "format: uuid"
+
+      - name: doc_id
+        description: Foreign key back to week3_extractions.doc_id.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('week3_extractions')
+              field: doc_id
+              config:
+                severity: error
+
+      - name: type
+        description: >
+          Entity type. Must be one of the six canonical values.
+          BREAKING if new values added without updating downstream consumers.
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - PERSON
+                - ORG
+                - LOCATION
+                - DATE
+                - AMOUNT
+                - OTHER
+              config:
+                severity: error
+              meta:
+                contract_clause: "enum: [PERSON, ORG, LOCATION, DATE, AMOUNT, OTHER]"
+
+      - name: name
+        description: Entity name as extracted.
+        tests:
+          - not_null
+
+      - name: canonical_value
+        description: Normalised canonical form of the entity value.
+        tests: []   # nullable in practice
