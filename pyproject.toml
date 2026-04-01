@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "data-contract-enforcer"
+version = "0.1.0"
+description = "Schema integrity and lineage attribution system for a multi-week AI platform"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.26",
+    "pyyaml>=6.0",
+    "jsonschema>=4.21",
+    "gitpython>=3.1",
+    "openai>=1.30",
+    "anthropic>=0.28",
+    "scikit-learn>=1.4",
+    "streamlit>=1.35",
+    "ydata-profiling>=4.6",
+    "hypothesis>=6.100",
+    "pytest>=8.0",
+    "soda-core>=3.3",
+    "asyncpg>=0.29",
+    "python-dotenv>=1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "property: property-based tests (Hypothesis)",
+    "unit: unit tests",
+    "integration: end-to-end pipeline tests",
+]
+
+[tool.hypothesis]
+max_examples = 100
