@@ -5,26 +5,21 @@ config-version: 2
 profile: data_contract_enforcer
 
 model-paths: ["models"]
-analysis-paths: ["analyses"]
 test-paths: ["tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
-snapshot-paths: ["snapshots"]
 
 target-path: "target"
 clean-targets:
   - "target"
   - "dbt_packages"
 
-# Import dbt_utils for expression_is_true and other generic tests
-packages:
-  - package: dbt-labs/dbt_utils
-    version: [">=1.0.0", "<2.0.0"]
-
 models:
   data_contract_enforcer:
     +materialized: view
     week3:
       +tags: ["week3", "data_contract"]
+      +schema: week3
     week5:
       +tags: ["week5", "data_contract"]
+      +schema: week5

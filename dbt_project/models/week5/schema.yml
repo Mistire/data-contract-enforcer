@@ -1,0 +1,174 @@
+# dbt schema.yml — Week 5 Event Sourcing Platform
+# Kept in sync with: generated_contracts/week5-event-records.yaml
+#
+# Contract rules mapped to dbt tests:
+#   - not_null        → required: true in Bitol contract
+#   - unique          → unique: true in Bitol contract
+#   - accepted_values → enum constraint in Bitol contract
+#   - dbt_utils.expression_is_true → temporal ordering, monotonic sequence
+#
+# Run with: dbt test --select week5_events
+# Or:       dbt test --select tag:week5
+
+version: 2
+
+models:
+  - name: week5_events
+    description: >
+      Append-only event log from the Week 5 Event Sourcing Platform (The Ledger).
+      One record per domain event. Events are immutable.
+    meta:
+      contract_id: week5-event-records
+      contract_version: "1.0.0"
+      bitol_yaml: generated_contracts/week5-event-records.yaml
+    tags:
+      - week5
+      - data_contract
+
+    columns:
+      - name: event_id
+        description: Primary key. UUIDv4. Globally unique.
+        tests:
+          - not_null
+          - unique
+          - dbt_utils.expression_is_true:
+              expression: "event_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'"
+              config:
+                severity: error
+              meta:
+                contract_clause: "format: uuid"
+
+      - name: event_type
+        description: PascalCase event type name. Registered in event schema registry.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "event_type ~ '^[A-Z][a-zA-Z]+$'"
+              config:
+                severity: warn
+              meta:
+                contract_clause: "PascalCase — registered in event schema registry"
+
+      - name: aggregate_type
+        description: PascalCase aggregate type derived from stream_id prefix.
+        tests:
+          - not_null
+
+      - name: aggregate_id
+        description: >
+          Aggregate instance identifier. NOTE: uses business keys (e.g. APEX-0001)
+          not UUIDs in this implementation — documented deviation in ACTUAL_SCHEMAS.md.
+        tests:
+          - not_null
+
+      - name: sequence_number
+        description: >
+          Monotonically increasing per aggregate_id. No gaps, no duplicates.
+          Primary ordering guarantee of the event store.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "sequence_number >= 1"
+              config:
+                severity: error
+              meta:
+                contract_clause: "minimum: 1, monotonically increasing per aggregate_id"
+
+      - name: occurred_at
+        description: >
+          When the event occurred. Sentinel: equals recorded_at (no occurred_at in DB).
+          MUST be <= recorded_at.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "occurred_at::timestamp <= recorded_at::timestamp"
+              config:
+                severity: error
+                error_if: ">0"
+              meta:
+                contract_clause: "occurred_at <= recorded_at (temporal ordering invariant)"
+
+      - name: recorded_at
+        description: When the event was persisted. Must be >= occurred_at.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "recorded_at::timestamp >= occurred_at::timestamp"
+              config:
+                severity: error
+              meta:
+                contract_clause: "recorded_at >= occurred_at"
+
+      - name: schema_version
+        description: Schema version string. Format "N.0".
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "schema_version ~ '^[0-9]+\\.0$'"
+              config:
+                severity: warn
+              meta:
+                contract_clause: "pattern: ^[0-9]+\\.0$"
+
+      - name: metadata__correlation_id
+        description: Correlation ID linking causally related events. Must be UUIDv4.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "metadata__correlation_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'"
+              config:
+                severity: warn
+              meta:
+                contract_clause: "metadata.correlation_id: format: uuid"
+
+      - name: metadata__source_service
+        description: Service that produced this event.
+        tests:
+          - not_null
+
+  - name: week5_sequence_integrity
+    description: >
+      Audit model: flags sequence number gaps within each aggregate stream.
+      Contract clause: sequence_number is monotonically increasing per aggregate_id.
+      This model MUST return zero rows when the event store is healthy.
+    meta:
+      contract_id: week5-event-records
+      contract_clause: "sequence_number monotonically increasing per aggregate_id"
+    tags:
+      - week5
+      - data_contract
+      - audit
+
+    columns:
+      - name: event_id
+        description: The event_id of the record with a sequence gap.
+        tests:
+          - not_null
+
+      - name: aggregate_id
+        description: The aggregate stream where the gap was detected.
+        tests:
+          - not_null
+
+      - name: sequence_number
+        description: The out-of-order sequence number.
+        tests:
+          - not_null
+
+      - name: expected_sequence
+        description: The sequence number that was expected (previous + 1).
+        tests:
+          - not_null
+
+      - name: gap_size
+        description: >
+          Difference between actual and expected sequence number.
+          Must be 0 — any non-zero value is a contract violation.
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "gap_size = 0"
+              config:
+                severity: error
+                error_if: ">0"
+              meta:
+                contract_clause: "sequence_number has no gaps or duplicates per aggregate_id"

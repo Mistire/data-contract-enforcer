@@ -1,0 +1,21 @@
+# Copy this to ~/.dbt/profiles.yml and fill in your database credentials.
+# The dbt project uses PostgreSQL (or DuckDB for local testing).
+
+data_contract_enforcer:
+  target: dev
+  outputs:
+    dev:
+      type: postgres          # or duckdb for local testing
+      host: localhost
+      port: 5432
+      user: your_user
+      password: your_password
+      dbname: data_contract_enforcer
+      schema: public
+      threads: 4
+
+    # DuckDB alternative for local testing without PostgreSQL:
+    # dev:
+    #   type: duckdb
+    #   path: data_contract_enforcer.duckdb
+    #   threads: 4

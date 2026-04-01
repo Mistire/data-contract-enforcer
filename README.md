@@ -130,3 +130,51 @@ pytest tests/ -v
 pytest tests/ -m property -v   # property-based tests only
 pytest tests/ -m integration -v
 ```
+
+## Run dbt tests (contract validation via dbt)
+
+The `dbt_project/` directory is a runnable dbt project that maps every contract
+rule to a dbt test. This lets you validate the Week 3 and Week 5 datasets using
+standard dbt tooling.
+
+```bash
+# Install dbt
+pip install dbt-postgres   # or dbt-duckdb for local testing
+
+# Copy and configure your profile
+cp dbt_project/profiles.yml.example ~/.dbt/profiles.yml
+# Edit ~/.dbt/profiles.yml with your database credentials
+
+# Install dbt packages (dbt_utils)
+cd dbt_project
+dbt deps
+
+# Run all contract tests for Week 3
+dbt test --select tag:week3
+
+# Run all contract tests for Week 5
+dbt test --select tag:week5
+
+# Run the confidence range check specifically (key contract target)
+dbt test --select week3_extracted_facts
+
+# Run the temporal ordering check (recorded_at >= occurred_at)
+dbt test --select week5_events
+
+# Run the sequence integrity audit (should return 0 rows)
+dbt test --select week5_sequence_integrity
+```
+
+### Contract → dbt test mapping
+
+| Contract rule | dbt test |
+|---------------|----------|
+| `required: true` | `not_null` |
+| `unique: true` | `unique` |
+| `enum: [PERSON, ORG, ...]` | `accepted_values` |
+| `relationships` (foreign key) | `relationships` |
+| `minimum: 0.0, maximum: 1.0` | `dbt_utils.expression_is_true` |
+| `format: uuid` | `dbt_utils.expression_is_true` (regex) |
+| `format: date-time` | `dbt_utils.expression_is_true` (cast) |
+| `recorded_at >= occurred_at` | `dbt_utils.expression_is_true` |
+| `sequence_number monotonic` | `week5_sequence_integrity` audit model |
