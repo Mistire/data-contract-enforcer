@@ -1,0 +1,50 @@
+kind: DataContract
+apiVersion: v3.0.0
+id: week1-intent-records
+info:
+  title: week1-intent-records
+  version: 1.0.0
+  owner: data-contract-enforcer
+servers:
+  local:
+    type: local
+    path: outputs/week1/...
+    format: jsonl
+schema:
+  intent_id:
+    type: string
+    required: true
+    format: uuid
+    pattern: ^[0-9a-f-]{36}$
+  description:
+    type: string
+    required: true
+  created_at:
+    type: string
+    required: true
+    format: date-time
+  code_refs.file:
+    type: string
+    required: false
+  code_refs.line_start:
+    type: number
+    required: false
+  code_refs.line_end:
+    type: number
+    required: false
+  code_refs.symbol:
+    type: string
+    required: false
+  code_refs.confidence:
+    type: number
+    required: false
+    minimum: 0.0
+    maximum: 1.0
+    description: Confidence score. Must remain 0.0-1.0 float. BREAKING if changed
+      to 0-100.
+  governance_tags:
+    type: string
+    required: false
+lineage:
+  upstream: []
+  downstream: []

@@ -1,0 +1,18 @@
+{
+  "written_at": "2026-04-01T21:33:29.567750",
+  "contract_id": "week1-intent-records",
+  "columns": {
+    "code_refs.line_start": {
+      "mean": 38.666666666666664,
+      "stddev": 32.24386246507491
+    },
+    "code_refs.line_end": {
+      "mean": 63.666666666666664,
+      "stddev": 32.24386246507491
+    },
+    "code_refs.confidence": {
+      "mean": 0.8499999999999999,
+      "stddev": 1.1491900087240784e-16
+    }
+  }
+}

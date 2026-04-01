@@ -1,0 +1,25 @@
+version: 2
+models:
+- name: week1-intent-records
+  columns:
+  - name: intent_id
+    tests:
+    - not_null
+  - name: description
+    tests:
+    - not_null
+  - name: created_at
+    tests:
+    - not_null
+  - name: code_refs.file
+    tests: []
+  - name: code_refs.line_start
+    tests: []
+  - name: code_refs.line_end
+    tests: []
+  - name: code_refs.symbol
+    tests: []
+  - name: code_refs.confidence
+    tests: []
+  - name: governance_tags
+    tests: []

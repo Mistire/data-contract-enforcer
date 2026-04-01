@@ -4,27 +4,20 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+*.egg-info/
 .env
 *.egg-info/
 dist/
 build/
 
-# Data outputs (generated at runtime — not committed)
-outputs/week1/
-outputs/week2/
-outputs/week3/
-outputs/week4/
-outputs/week5/
+# Runtime outputs — keep generated contracts and reports for submission
+# outputs/week*/  — committed (real data for evaluators)
 outputs/traces/
 outputs/quarantine/
-generated_contracts/
-validation_reports/
 violation_log/
-schema_snapshots/
-enforcer_report/
 
-# Keep migrate scripts but not their outputs
-!outputs/migrate/
+# Keep schema snapshots baselines but not embedding baselines (large binary)
+schema_snapshots/embedding_baselines.npz
 
 # Pytest / Hypothesis
 .pytest_cache/

@@ -1,0 +1,38 @@
+version: 2
+models:
+- name: week3-document-refinery-extractions
+  columns:
+  - name: doc_id
+    tests:
+    - not_null
+  - name: source_path
+    tests:
+    - not_null
+  - name: source_hash
+    tests:
+    - not_null
+  - name: extraction_model
+    tests:
+    - not_null
+  - name: processing_time_ms
+    tests:
+    - not_null
+  - name: token_count.input
+    tests:
+    - not_null
+  - name: token_count.output
+    tests:
+    - not_null
+  - name: extracted_at
+    tests:
+    - not_null
+  - name: extracted_facts.fact_id
+    tests: []
+  - name: extracted_facts.text
+    tests: []
+  - name: extracted_facts.confidence
+    tests: []
+  - name: extracted_facts.page_ref
+    tests: []
+  - name: extracted_facts.source_excerpt
+    tests: []

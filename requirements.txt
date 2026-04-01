@@ -1,0 +1,13 @@
+pandas>=2.0
+numpy>=1.26
+pyyaml>=6.0
+jsonschema>=4.21
+gitpython>=3.1
+openai>=1.30
+anthropic>=0.28
+scikit-learn>=1.4
+streamlit>=1.35
+hypothesis>=6.100
+pytest>=8.0
+python-dotenv>=1.0
+asyncpg>=0.29
