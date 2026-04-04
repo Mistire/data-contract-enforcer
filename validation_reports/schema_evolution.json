@@ -1,0 +1,11 @@
+{
+  "contract_id": "week3-document-refinery-extractions",
+  "generated_at": "2026-04-04T19:24:55.975396+00:00",
+  "snapshots_analyzed": 2,
+  "analysis_window": "7 days ago",
+  "total_changes": 0,
+  "breaking_changes": 0,
+  "compatible_changes": 0,
+  "compatibility_verdict": "COMPATIBLE",
+  "pair_diffs": []
+}

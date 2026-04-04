@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-04-04T19:18:08.613878+00:00",
+  "period": "2026-04-01 to 2026-04-01",
+  "data_health_score": 0,
+  "health_narrative": "Score of 0/100. 1 critical issue(s) require immediate action.",
+  "top_violations": [
+    {
+      "system": "week5",
+      "field": "sequence_number",
+      "severity": "CRITICAL",
+      "impact": "The sequence_number field in week5 failed its monotonic check. Expected monotonically increasing per aggregate_id but found 173 non-monotonic steps. This affects 173 records."
+    },
+    {
+      "system": "week5-event-records",
+      "field": "aggregate_id",
+      "severity": "HIGH",
+      "impact": "The aggregate_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 1198 non-UUID values. This affects 1198 records."
+    },
+    {
+      "system": "week5-event-records",
+      "field": "payload.application_id",
+      "severity": "HIGH",
+      "impact": "The payload.application_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 641 non-UUID values. This affects 641 records."
+    }
+  ],
+  "total_violations_by_severity": {
+    "CRITICAL": 1,
+    "HIGH": 11,
+    "MEDIUM": 0,
+    "LOW": 0
+  },
+  "violation_count": 12,
+  "recommendations": [
+    "Review week5 contract for sequence_number.",
+    "Ensure week5-event-records generates valid UUIDs for aggregate_id.",
+    "Ensure week5-event-records generates valid UUIDs for payload.application_id.",
+    "Ensure week5-event-records generates valid UUIDs for payload.applicant_id.",
+    "Ensure week5-event-records generates valid UUIDs for metadata.user_id.",
+    "Ensure week5-event-records generates valid UUIDs for payload.package_id.",
+    "Ensure week5-event-records generates valid UUIDs for payload.document_id.",
+    "Ensure week5-event-records generates valid UUIDs for payload.session_id.",
+    "Ensure week5-event-records generates valid UUIDs for payload.agent_id.",
+    "Ensure week5-event-records generates valid UUIDs for payload.triggered_by_event_id."
+  ],
+  "ai_risk_assessment": {
+    "embedding_drift_status": "UNKNOWN",
+    "embedding_drift_score": 0.0,
+    "llm_violation_rate": 0.0,
+    "llm_violation_trend": "unknown"
+  }
+}
