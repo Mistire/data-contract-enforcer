@@ -1,0 +1,51 @@
+contract_id: week3-document-refinery-extractions
+captured_at: '2026-04-05T02:04:41.474345+00:00'
+schema:
+  doc_id:
+    type: string
+    required: true
+    format: uuid
+    pattern: ^[0-9a-f-]{36}$
+  source_path:
+    type: string
+    required: true
+  source_hash:
+    type: string
+    required: true
+  extraction_model:
+    type: string
+    required: true
+  processing_time_ms:
+    type: integer
+    required: true
+  token_count.input:
+    type: integer
+    required: true
+  token_count.output:
+    type: integer
+    required: true
+  extracted_at:
+    type: string
+    required: true
+    format: date-time
+  extracted_facts.fact_id:
+    type: string
+    required: false
+    format: uuid
+    pattern: ^[0-9a-f-]{36}$
+  extracted_facts.text:
+    type: string
+    required: false
+  extracted_facts.confidence:
+    type: number
+    required: false
+    minimum: 0.0
+    maximum: 1.0
+    description: Confidence score. Must remain 0.0-1.0 float. BREAKING if changed
+      to 0-100.
+  extracted_facts.page_ref:
+    type: number
+    required: false
+  extracted_facts.source_excerpt:
+    type: string
+    required: false

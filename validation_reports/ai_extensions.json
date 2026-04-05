@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-04-05T02:16:27.913152+00:00",
+  "mode": "output",
+  "output_violation_rate": {
+    "run_date": "2026-04-05",
+    "prompt_hash": "86a3112b42df86e0",
+    "total_outputs": 4,
+    "schema_violations": 0,
+    "violation_rate": 0.0,
+    "trend": "unknown",
+    "status": "PASS"
+  }
+}
