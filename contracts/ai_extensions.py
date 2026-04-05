@@ -174,7 +174,7 @@ def check_output_schema_violation_rate(
     content = json.dumps([v.get("overall_verdict") for v in verdict_records], sort_keys=True)
     prompt_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
 
-    return {
+    res = {
         "run_date": datetime.now(timezone.utc).date().isoformat(),
         "prompt_hash": prompt_hash,
         "total_outputs": total,
@@ -183,6 +183,25 @@ def check_output_schema_violation_rate(
         "trend": trend,
         "status": "WARN" if rate > warn_threshold else "PASS",
     }
+
+    if res["status"] == "WARN":
+        try:
+            log_path = Path("violation_log/violations.jsonl")
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(log_path, "a") as f:
+                violation_record = {
+                    "violation_id": f"ai-output-{prompt_hash}",
+                    "check_id": "ai_extensions.output_schema_violation_rate",
+                    "detected_at": datetime.now(timezone.utc).isoformat(),
+                    "type": "llm_output_schema",
+                    "violation_rate": res["violation_rate"],
+                    "message": f"LLM output schema violation rate ({res['violation_rate']}) exceeds threshold ({warn_threshold})"
+                }
+                f.write(json.dumps(violation_record) + "\n")
+        except Exception as exc:
+            log.warning("Could not write AI violation to log: %s", exc)
+
+    return res
 
 
 # ---------------------------------------------------------------------------
@@ -222,8 +241,8 @@ def main() -> None:
         choices=["all", "drift", "prompt", "output"],
         help="Which extensions to run",
     )
-    parser.add_argument("--extractions", required=False, help="Path to extractions JSONL")
-    parser.add_argument("--verdicts", required=False, help="Path to verdicts JSONL")
+    parser.add_argument("--extractions", default="outputs/week3/extractions.jsonl", help="Path to extractions JSONL")
+    parser.add_argument("--verdicts", default="outputs/week2/verdicts.jsonl", help="Path to verdicts JSONL")
     parser.add_argument("--output", required=True, help="Path to output AI metrics JSON")
     args = parser.parse_args()
 
@@ -298,6 +317,24 @@ def main() -> None:
     try:
         output_path = Path(args.output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        # 4. Unified status summary
+        drift_status = results.get("embedding_drift", {}).get("status", "SKIP")
+        output_status = results.get("output_violation_rate", {}).get("status", "SKIP")
+        
+        status_code = "PASS"
+        if "FAIL" in (drift_status, output_status):
+            status_code = "FAIL"
+        elif "WARN" in (drift_status, output_status):
+            status_code = "WARN"
+        elif "ERROR" in (drift_status, output_status):
+            status_code = "ERROR"
+
+        results["status_summary"] = {
+            "overall_ai_status": status_code,
+            "drift_detected": drift_status == "FAIL",
+            "high_violation_rate": output_status == "WARN"
+        }
+
         with open(output_path, "w", encoding="utf-8") as fh:
             json.dump(results, fh, indent=2)
         log.info("AI extensions report written to %s", output_path)

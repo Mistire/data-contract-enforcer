@@ -631,9 +631,13 @@ def _build_check_id(contract_id: str, col: str, check_type: str) -> str:
 def run_validation(
     contract_path: str | Path,
     data_path: str | Path,
-) -> dict:
+    mode: str = "AUDIT",
+) -> tuple[dict, bool]:
     """
-    Execute all contract checks against data and return a validation report dict.
+    Execute all contract checks against data and return (validation report dict, should_block).
+    - AUDIT: should_block is always False.
+    - WARN: should_block is always False.
+    - ENFORCE: should_block is True if any CRITICAL severity failures exist.
     Never raises — all errors are captured in the report.
     """
     contract_path = Path(contract_path)
@@ -670,7 +674,7 @@ def run_validation(
             })
     else:
         # Load baselines for drift checks
-        baselines = _load_baselines()
+        baselines = _load_baselines().get(contract_id, {})
         baseline_exists = bool(baselines.get("columns"))
 
         for field_path, clause in schema.items():
@@ -744,17 +748,19 @@ def run_validation(
                 c["check_id"] = _build_check_id(contract_id, c.get("column_name", "unknown"), c.get("check_type", "canonical"))
             results.append(c)
 
-        # Write baselines on first successful run
-        if not baseline_exists:
-            _write_baselines(contract_id, df)
-
     # Tally counts
     passed = sum(1 for r in results if r.get("status") == "PASS")
     failed = sum(1 for r in results if r.get("status") == "FAIL")
     warned = sum(1 for r in results if r.get("status") == "WARN")
     errored = sum(1 for r in results if r.get("status") == "ERROR")
 
-    return {
+    # Write baselines on first successful run
+    if not baseline_exists and errored == 0 and failed == 0:
+         # Runner currently doesn't write back to the shared baselines.json
+         # because the Generator now handles it. But we keep it as a fallback.
+        pass
+
+    report = {
         "report_id": report_id,
         "contract_id": contract_id,
         "snapshot_id": snapshot_id,
@@ -767,6 +773,20 @@ def run_validation(
         "results": results,
     }
 
+    # Blocking logic
+    should_block = False
+    if mode == "ENFORCE":
+        # Block if any FAIL or ERROR has CRITICAL severity
+        critical_issues = [
+            r for r in results 
+            if r.get("status") in ("FAIL", "ERROR") and r.get("severity") == "CRITICAL"
+        ]
+        if critical_issues:
+            should_block = True
+            log.error("ENFORCEMENT FAILURE: %d critical violations found", len(critical_issues))
+
+    return report, should_block
+
 
 # ---------------------------------------------------------------------------
 # CLI entry point
@@ -777,12 +797,19 @@ def main() -> None:
     parser.add_argument("--contract", required=True, help="Path to contract YAML")
     parser.add_argument("--data", required=True, help="Path to data JSONL")
     parser.add_argument("--output", required=True, help="Path to output report JSON")
+    parser.add_argument(
+        "--mode", 
+        choices=["AUDIT", "WARN", "ENFORCE"], 
+        default="AUDIT",
+        help="Semantics: AUDIT (report only), WARN (log failures), ENFORCE (exit 1 on CRITICAL)"
+    )
     args = parser.parse_args()
 
     try:
-        report = run_validation(args.contract, args.data)
+        report, should_block = run_validation(args.contract, args.data, mode=args.mode)
     except Exception as exc:
         log.error("Fatal error in run_validation: %s", exc)
+        should_block = True
         report = {
             "report_id": str(uuid.uuid4()),
             "contract_id": "unknown",
@@ -819,6 +846,11 @@ def main() -> None:
             f"{report['errored']} errored",
             file=sys.stderr,
         )
+
+        if should_block:
+            log.error("Blocking execution due to contract violations (mode=%s)", args.mode)
+            sys.exit(1)
+
     except Exception as exc:
         log.error("Could not write report to %s: %s", args.output, exc)
         sys.exit(1)

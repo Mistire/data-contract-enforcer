@@ -24,6 +24,10 @@ from typing import Any
 
 import pandas as pd
 import yaml
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
@@ -63,6 +67,7 @@ class ContractClause:
     enum: list | None = None
     description: str = ""
     llm_annotation: str | None = None
+    warning_annotation: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -242,7 +247,7 @@ def _infer_type(dtype: str) -> str:
 
 
 def _generate_clauses(profiles: list[ColumnProfile]) -> list[ContractClause]:
-    """Generate contract clauses from column profiles."""
+    """Generate contract clauses from column profiles with suspicious distribution flagging."""
     clauses: list[ContractClause] = []
 
     for p in profiles:
@@ -254,6 +259,12 @@ def _generate_clauses(profiles: list[ColumnProfile]) -> list[ContractClause]:
         maximum: float | None = None
         enum: list | None = None
         description = ""
+        warning = None
+
+        # Flag suspicious distributions (mean near 0 or 1 for floats)
+        if p.dtype in ("float64", "float32") and p.mean is not None:
+            if (0.0 <= p.mean <= 0.05) or (0.95 <= p.mean <= 1.0):
+                warning = f"Suspicious distribution: mean={round(p.mean, 4)} is near 0 or 1. Verify if this should be a boolean or if data is clamped."
 
         # _id → uuid format + pattern
         if p.name.endswith("_id"):
@@ -290,6 +301,7 @@ def _generate_clauses(profiles: list[ColumnProfile]) -> list[ContractClause]:
             maximum=maximum,
             enum=enum,
             description=description,
+            warning_annotation=warning,
         )
         clauses.append(clause)
 
@@ -347,6 +359,83 @@ def _inject_lineage(contract_id: str, lineage_path: str | Path | None) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# LLM & Baseline Enrichment
+# ---------------------------------------------------------------------------
+
+def _enrich_with_llm(clauses: list[ContractClause], contract_id: str) -> None:
+    """Use OpenRouter to add annotations for ambiguous columns."""
+    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        log.warning("No OPENROUTER_API_KEY or OPENAI_API_KEY found — skipping LLM enrichment")
+        return
+
+    try:
+        from openai import OpenAI
+        client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=api_key,
+        )
+
+        ambiguous = [c for c in clauses if len(c.field_path) < 5 or "_" not in c.field_path]
+        if not ambiguous:
+            return
+
+        fields = [c.field_path for c in ambiguous]
+        prompt = (
+            f"You are a data architect. Provide a 1-sentence business definition for each of these "
+            f"columns in a dataset named '{contract_id}': {fields}. "
+            f"Return a JSON mapping index to definition."
+        )
+
+        resp = client.chat.completions.create(
+            model="google/gemini-2.0-flash-001",
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+            timeout=15,
+        )
+        mapping = json.loads(resp.choices[0].message.content or "{}")
+
+        for i, clause in enumerate(ambiguous):
+            clause.llm_annotation = mapping.get(str(i)) or mapping.get(clause.field_path)
+
+        log.info("Enriched %d columns with LLM annotations", len(ambiguous))
+    except Exception as exc:
+        log.warning("LLM enrichment failed: %s", exc)
+
+
+def _write_numeric_baselines(profiles: list[ColumnProfile], contract_id: str) -> None:
+    """Write mean/stddev per numeric column to schema_snapshots/baselines.json."""
+    baselines_path = Path("schema_snapshots") / "baselines.json"
+    baselines_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        if baselines_path.exists():
+            with open(baselines_path, "r") as f:
+                data = json.load(f)
+        else:
+            data = {}
+
+        cols = {}
+        for p in profiles:
+            if p.mean is not None:
+                cols[p.name] = {
+                    "mean": p.mean,
+                    "stddev": p.stddev or 0.0,
+                }
+
+        data[contract_id] = {
+            "captured_at": datetime.now(timezone.utc).isoformat(),
+            "columns": cols,
+        }
+
+        with open(baselines_path, "w") as f:
+            json.dump(data, f, indent=2)
+        log.info("Numeric baselines written for %s", contract_id)
+    except Exception as exc:
+        log.warning("Could not write baselines: %s", exc)
+
+
+# ---------------------------------------------------------------------------
 # Writers
 # ---------------------------------------------------------------------------
 
@@ -369,6 +458,8 @@ def _clause_to_dict(clause: ContractClause) -> dict:
         d["description"] = clause.description
     if clause.llm_annotation is not None:
         d["llm_annotation"] = clause.llm_annotation
+    if clause.warning_annotation is not None:
+        d["warning_annotation"] = clause.warning_annotation
     return d
 
 
@@ -592,6 +683,12 @@ def main() -> None:
 
         # 3. Generate clauses
         clauses = _generate_clauses(profiles)
+
+        # 3b. Enrich with LLM
+        _enrich_with_llm(clauses, args.contract_id)
+
+        # 3c. Write baselines
+        _write_numeric_baselines(profiles, args.contract_id)
 
         # 4. Inject lineage
         lineage = _inject_lineage(args.contract_id, args.lineage)

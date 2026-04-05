@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-04-05T02:42:56.136922+00:00",
+  "mode": "all",
+  "embedding_drift": {
+    "status": "ERROR",
+    "message": "Embedding API failed: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable",
+    "drift_score": 0.0
+  },
+  "prompt_validation": {
+    "valid_count": 21,
+    "quarantined_count": 0
+  },
+  "output_violation_rate": {
+    "run_date": "2026-04-05",
+    "prompt_hash": "86a3112b42df86e0",
+    "total_outputs": 4,
+    "schema_violations": 0,
+    "violation_rate": 0.0,
+    "trend": "unknown",
+    "status": "PASS"
+  },
+  "status_summary": {
+    "overall_ai_status": "ERROR",
+    "drift_detected": false,
+    "high_violation_rate": false
+  }
+}

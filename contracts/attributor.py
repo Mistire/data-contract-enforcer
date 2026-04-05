@@ -29,6 +29,8 @@ import yaml
 logging.basicConfig(stream=sys.stderr, level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
 
+SUBSCRIPTIONS_PATH = Path("schema_snapshots") / "subscriptions.json"
+
 
 # ---------------------------------------------------------------------------
 # I/O helpers
@@ -67,6 +69,85 @@ def _load_yaml(path: str | Path) -> dict:
     except Exception as exc:
         log.error("Cannot load YAML %s: %s", path, exc)
         return {}
+
+
+# ---------------------------------------------------------------------------
+# Subscription Registry (Dynamic)
+# ---------------------------------------------------------------------------
+
+class SubscriptionRegistry:
+    def __init__(self, storage_path: Path):
+        self.storage_path = storage_path
+        self.subscribers: list[dict] = []
+        self._load()
+
+    def _load(self):
+        if self.storage_path.exists():
+            try:
+                with open(self.storage_path, "r") as f:
+                    self.subscribers = json.load(f)
+            except Exception as exc:
+                log.warning("Could not load subscriptions from %s: %s", self.storage_path, exc)
+
+    def _save(self):
+        try:
+            self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.storage_path, "w") as f:
+                json.dump(self.subscribers, f, indent=2)
+        except Exception as exc:
+            log.warning("Could not save subscriptions: %s", exc)
+
+    def register(self, subscriber_id: str, contact_channel: str, priority: int, consumed_fields: list[str]):
+        """Register a new subscriber and persist."""
+        new_sub = {
+            "subscriber_id": subscriber_id,
+            "contact_channel": contact_channel,
+            "priority": priority,
+            "consumed_fields": consumed_fields,
+            "registered_at": datetime.now(timezone.utc).isoformat()
+        }
+        # Update existing or add new
+        for i, sub in enumerate(self.subscribers):
+            if sub["subscriber_id"] == subscriber_id:
+                self.subscribers[i] = new_sub
+                break
+        else:
+            self.subscribers.append(new_sub)
+        self._save()
+        log.info("Registered subscriber: %s", subscriber_id)
+
+    def get_subscribers(self, field_path: str) -> list[dict]:
+        """Return subscribers consuming a specific field."""
+        return [
+            s for s in self.subscribers 
+            if any(field_path.startswith(cf.replace("[*]", "")) for cf in s["consumed_fields"])
+        ]
+
+    def get_downstream_impact(self, field_path: str) -> dict:
+        """Calculate impact score and list affected consumer types."""
+        subs = self.get_subscribers(field_path)
+        if not subs:
+            return {"impact_score": 0.0, "consumer_types": []}
+        
+        max_priority = max(s["priority"] for s in subs)
+        consumer_types = list(set(s["contact_channel"].split(":")[0] for s in subs))
+        return {
+            "impact_score": round(max_priority / 10.0, 2),
+            "consumer_types": consumer_types,
+            "subscriber_count": len(subs)
+        }
+
+    def enrich_blast_radius(self, blast_radius: dict, field_path: str):
+        """Add subscriber info and contamination depth to blast radius."""
+        impact = self.get_downstream_impact(field_path)
+        subs = self.get_subscribers(field_path)
+        
+        blast_radius["impact_assessment"] = impact
+        blast_radius["subscribers"] = [
+            {"id": s["subscriber_id"], "priority": s["priority"]} for s in subs
+        ]
+        # Contamination depth: distance in lineage + severity weight
+        blast_radius["contamination_depth"] = len(blast_radius.get("affected_nodes", []))
 
 
 # ---------------------------------------------------------------------------
@@ -138,7 +219,8 @@ def _run_git_log(file_path: str, repo_root: str = ".") -> list[dict]:
                         "commit_message": parts[3].strip(),
                     })
         return commits
-    except Exception:
+    except Exception as exc:
+        log.error("Git log failed for %s: %s", file_path, exc)
         return []
 
 
@@ -182,17 +264,20 @@ def _score_candidates(commits: list[dict], violation_timestamp: str, lineage_dis
 # Blast radius
 # ---------------------------------------------------------------------------
 
-def _compute_blast_radius(contract_path: str, estimated_records: int) -> dict:
+def _compute_blast_radius(contract_path: str, estimated_records: int, field_path: str, registry: SubscriptionRegistry) -> dict:
     try:
         with open(contract_path) as f:
             contract = yaml.safe_load(f)
         downstream = contract.get("lineage", {}).get("downstream", [])
-        return {
+        br = {
             "affected_nodes": [d["id"] for d in downstream],
             "affected_pipelines": [d["id"] for d in downstream if "pipeline" in d.get("id", "")],
             "estimated_records": estimated_records,
         }
-    except Exception:
+        registry.enrich_blast_radius(br, field_path)
+        return br
+    except Exception as exc:
+        log.warning("Blast radius computation failed: %s", exc)
         return {"affected_nodes": [], "affected_pipelines": [], "estimated_records": estimated_records}
 
 
@@ -219,6 +304,7 @@ def _attribute_violation(
     lineage_snapshot: dict,
     contract_path: str,
     detected_at: str,
+    registry: SubscriptionRegistry,
     repo_root: str = ".",
 ) -> dict:
     """Build a single violation record for one FAIL result."""
@@ -283,7 +369,7 @@ def _attribute_violation(
     blame_chain = blame_chain[:5]
 
     # 5. Compute blast radius
-    blast_radius = _compute_blast_radius(contract_path, records_failing)
+    blast_radius = _compute_blast_radius(contract_path, records_failing, column_name, registry)
 
     # 6. Determine violation type
     check_type = fail_result.get("check_type", "range")
@@ -326,6 +412,12 @@ def main() -> None:
             log.info("No FAIL results found in %s — nothing to attribute", args.violation)
             return
 
+        # Initialize Registry
+        registry = SubscriptionRegistry(SUBSCRIPTIONS_PATH)
+        # Register a fallback if empty
+        if not registry.subscribers:
+            registry.register("default-consumer", "slack:#data-ops", 5, ["*"])
+
         # Load lineage snapshot (latest from JSONL)
         lineage_records = _load_jsonl(args.lineage)
         lineage_snapshot = lineage_records[-1] if lineage_records else {}
@@ -349,6 +441,7 @@ def main() -> None:
                         lineage_snapshot=lineage_snapshot,
                         contract_path=str(contract_path),
                         detected_at=detected_at,
+                        registry=registry,
                         repo_root=repo_root,
                     )
                     out_fh.write(json.dumps(violation) + "\n")

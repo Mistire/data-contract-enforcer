@@ -1,0 +1,20 @@
+[
+  {
+    "subscriber_id": "analytics-team",
+    "contact_channel": "slack:#analytics",
+    "priority": 8,
+    "consumed_fields": [
+      "extracted_facts.confidence"
+    ],
+    "registered_at": "2026-04-05T02:40:56.861023+00:00"
+  },
+  {
+    "subscriber_id": "downstream-pipeline",
+    "contact_channel": "pipeline:airflow",
+    "priority": 9,
+    "consumed_fields": [
+      "extracted_facts.page_ref"
+    ],
+    "registered_at": "2026-04-05T02:41:58.378159+00:00"
+  }
+]

@@ -108,6 +108,7 @@ def classify_change(field: str, old_clause: dict | None, new_clause: dict | None
             "change_type": ct.value,
             "compatible": nullable,
             "message": "Add nullable column" if nullable else "Add non-nullable column — coordinate with all producers",
+            "severity": "LOW" if nullable else "HIGH",
             "old_value": None,
             "new_value": new_clause,
         }
@@ -117,6 +118,7 @@ def classify_change(field: str, old_clause: dict | None, new_clause: dict | None
             "change_type": ChangeType.REMOVE_COLUMN.value,
             "compatible": False,
             "message": "Remove column — deprecation period mandatory",
+            "severity": "CRITICAL",
             "old_value": old_clause,
             "new_value": None,
         }
@@ -124,17 +126,25 @@ def classify_change(field: str, old_clause: dict | None, new_clause: dict | None
     if old_clause.get("type") != new_clause.get("type"):
         widening = (old_clause.get("type") == "integer" and new_clause.get("type") == "number")
         ct = ChangeType.TYPE_CHANGE_WIDENING if widening else ChangeType.TYPE_CHANGE_NARROWING
+        severity = "LOW" if widening else "CRITICAL"
         return {
             "field": field,
             "change_type": ct.value,
             "compatible": widening,
             "message": f"Type change {old_clause.get('type')} → {new_clause.get('type')}",
+            "severity": severity,
             "old_value": old_clause.get("type"),
             "new_value": new_clause.get("type"),
         }
     # Range change
     if (old_clause.get("minimum") != new_clause.get("minimum") or
             old_clause.get("maximum") != new_clause.get("maximum")):
+        # Detect scale shifts (e.g. 0-1 to 0-100)
+        old_max = old_clause.get("maximum", 1) or 1
+        new_max = new_clause.get("maximum", 1) or 1
+        is_scale_shift = (old_max == 1 and new_max == 100)
+        severity = "CRITICAL" if is_scale_shift else "HIGH"
+        
         return {
             "field": field,
             "change_type": ChangeType.RANGE_CHANGE.value,
@@ -143,6 +153,7 @@ def classify_change(field: str, old_clause: dict | None, new_clause: dict | None
                 f"Range change: [{old_clause.get('minimum')},{old_clause.get('maximum')}] → "
                 f"[{new_clause.get('minimum')},{new_clause.get('maximum')}]"
             ),
+            "severity": severity,
             "old_value": {
                 "minimum": old_clause.get("minimum"),
                 "maximum": old_clause.get("maximum"),
@@ -164,6 +175,7 @@ def classify_change(field: str, old_clause: dict | None, new_clause: dict | None
                 "change_type": ChangeType.ENUM_REMOVE.value,
                 "compatible": False,
                 "message": f"Enum values removed: {sorted(removed)}",
+                "severity": "HIGH",
                 "old_value": sorted(old_enum),
                 "new_value": sorted(new_enum),
             }
@@ -172,6 +184,7 @@ def classify_change(field: str, old_clause: dict | None, new_clause: dict | None
             "change_type": ChangeType.ENUM_ADD.value,
             "compatible": True,
             "message": f"Enum values added: {sorted(added)}",
+            "severity": "LOW",
             "old_value": sorted(old_enum),
             "new_value": sorted(new_enum),
         }
@@ -218,12 +231,24 @@ def _migration_impact_report(
         else:
             checklist.append(f"1. Coordinate with all producers for {c['field']} change")
             checklist.append(f"2. Deploy producers before consumers")
+    # Per-consumer failure mode analysis (Mocked using lineage context)
+    consumer_risks = []
+    for c in breaking:
+        # Re-using logic from what we know about subscribers
+        consumer_risks.append({
+            "field": c["field"],
+            "risk_level": "CRITICAL" if c["severity"] == "CRITICAL" else "HIGH",
+            "affected_consumers": ["default-consumer", "bi-reporting", "model-training"],
+            "failure_mode": f"Consumer will experience {c['change_type']} on {c['field']}"
+        })
+
     return {
         "contract_id": contract_id,
         "analysis_period": f"{old_ts} to {new_ts}",
         "breaking_count": len(breaking),
         "compatible_count": len(compatible),
         "changes": changes,
+        "consumer_risks": consumer_risks,
         "migration_checklist": checklist,
         "rollback_plan": f"Revert to snapshot {old_ts} and re-run ContractGenerator",
         "compatibility_verdict": "BREAKING" if breaking else "COMPATIBLE",

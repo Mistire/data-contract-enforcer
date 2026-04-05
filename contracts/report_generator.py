@@ -81,7 +81,7 @@ def _load_all_validation_reports() -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def compute_health_score(validation_reports: list[dict]) -> int:
-    deductions = {"CRITICAL": 20, "HIGH": 10, "MEDIUM": 5, "LOW": 1}
+    deductions = {"CRITICAL": 25, "HIGH": 10, "MEDIUM": 5, "LOW": 1}
     score = 100
     for report in validation_reports:
         for result in report.get("results", []):
@@ -137,11 +137,16 @@ def _generate_recommendations(fail_results: list[dict]) -> list[str]:
         system = check_id.split(".")[0] if "." in check_id else "unknown"
         field = result.get("column_name", "unknown field")
         check_type = result.get("check_type", "contract")
+        
+        # Enhanced with file paths and clauses
+        contract_file = f"contracts/{system}.yaml"
         template = _RECOMMENDATION_TEMPLATES.get(check_type, "Review {system} contract for {field}.")
         rec = template.format(system=system, field=field)
-        if rec not in seen:
-            seen.add(rec)
-            recs.append(rec)
+        detailed_rec = f"{rec} (Action: Check {contract_file} for '{field}' {check_type} clause)"
+        
+        if detailed_rec not in seen:
+            seen.add(detailed_rec)
+            recs.append(detailed_rec)
     return recs
 
 
@@ -275,6 +280,8 @@ def main() -> None:
             "top_violations": top_violations,
             "total_violations_by_severity": severity_tally,
             "violation_count": len(all_fail_results),
+            "violations_this_week": [plain_language_violation(r) for r in sorted_fails],
+            "schema_changes_detected": _load_json(VALIDATION_REPORTS_DIR / "schema_evolution.json").get("total_changes", 0),
             "recommendations": recommendations,
             "ai_risk_assessment": ai_risk,
         }

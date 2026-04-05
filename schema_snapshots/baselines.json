@@ -14,5 +14,55 @@
       "mean": 0.8499999999999999,
       "stddev": 1.1491900087240784e-16
     }
+  },
+  "week3-test": {
+    "captured_at": "2026-04-05T02:43:47.355308+00:00",
+    "columns": {
+      "processing_time_ms": {
+        "mean": 0.0,
+        "stddev": 0.0
+      },
+      "token_count.input": {
+        "mean": 0.0,
+        "stddev": 0.0
+      },
+      "token_count.output": {
+        "mean": 0.0,
+        "stddev": 0.0
+      },
+      "extracted_facts.confidence": {
+        "mean": 0.8499999999999999,
+        "stddev": 1.1140981604024315e-16
+      },
+      "extracted_facts.page_ref": {
+        "mean": 3.111111111111111,
+        "stddev": 1.2577653127565502
+      }
+    }
+  },
+  "week3-document-refinery-extractions": {
+    "captured_at": "2026-04-05T02:47:41.587794+00:00",
+    "columns": {
+      "processing_time_ms": {
+        "mean": 0.0,
+        "stddev": 0.0
+      },
+      "token_count.input": {
+        "mean": 0.0,
+        "stddev": 0.0
+      },
+      "token_count.output": {
+        "mean": 0.0,
+        "stddev": 0.0
+      },
+      "extracted_facts.confidence": {
+        "mean": 0.8499999999999999,
+        "stddev": 1.1140981604024315e-16
+      },
+      "extracted_facts.page_ref": {
+        "mean": 3.111111111111111,
+        "stddev": 1.2577653127565502
+      }
+    }
   }
 }
