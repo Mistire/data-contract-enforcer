@@ -1,16 +1,16 @@
 {
-  "report_id": "7ea2b87e-fa0e-4022-9ba6-96675f8bec51",
-  "contract_id": "week3-document-refinery-extractions",
-  "snapshot_id": "440a1f89af8bd45ce0cddb42d845f178d44c3cdf525eb6a5350c393b22ac59a9",
-  "run_timestamp": "2026-04-05T02:13:52.903439+00:00",
-  "total_checks": 26,
-  "passed": 24,
-  "failed": 2,
+  "report_id": "7274d80b-5413-4489-bce7-1bb7d9619f02",
+  "contract_id": "week3-test",
+  "snapshot_id": "d65d0af4b262c6ab02708452d4c00cc2083577f7fc29b14fc3641db02118d92c",
+  "run_timestamp": "2026-04-06T09:51:48.821372+00:00",
+  "total_checks": 31,
+  "passed": 28,
+  "failed": 3,
   "warned": 0,
   "errored": 0,
   "results": [
     {
-      "check_id": "week3-document-refinery-extractions.doc_id.required",
+      "check_id": "week3-test.doc_id.required",
       "column_name": "doc_id",
       "check_type": "required",
       "status": "PASS",
@@ -22,7 +22,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.doc_id.type",
+      "check_id": "week3-test.doc_id.type",
       "column_name": "doc_id",
       "check_type": "type",
       "status": "PASS",
@@ -34,7 +34,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.doc_id.uuid",
+      "check_id": "week3-test.doc_id.uuid",
       "column_name": "doc_id",
       "check_type": "uuid",
       "status": "PASS",
@@ -46,7 +46,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.source_path.required",
+      "check_id": "week3-test.source_path.required",
       "column_name": "source_path",
       "check_type": "required",
       "status": "PASS",
@@ -58,7 +58,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.source_path.type",
+      "check_id": "week3-test.source_path.type",
       "column_name": "source_path",
       "check_type": "type",
       "status": "PASS",
@@ -70,7 +70,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.source_hash.required",
+      "check_id": "week3-test.source_hash.required",
       "column_name": "source_hash",
       "check_type": "required",
       "status": "PASS",
@@ -82,7 +82,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.source_hash.type",
+      "check_id": "week3-test.source_hash.type",
       "column_name": "source_hash",
       "check_type": "type",
       "status": "PASS",
@@ -94,7 +94,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extraction_model.required",
+      "check_id": "week3-test.extraction_model.required",
       "column_name": "extraction_model",
       "check_type": "required",
       "status": "PASS",
@@ -106,7 +106,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extraction_model.type",
+      "check_id": "week3-test.extraction_model.type",
       "column_name": "extraction_model",
       "check_type": "type",
       "status": "PASS",
@@ -118,7 +118,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.processing_time_ms.required",
+      "check_id": "week3-test.processing_time_ms.required",
       "column_name": "processing_time_ms",
       "check_type": "required",
       "status": "PASS",
@@ -130,7 +130,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.processing_time_ms.type",
+      "check_id": "week3-test.processing_time_ms.type",
       "column_name": "processing_time_ms",
       "check_type": "type",
       "status": "PASS",
@@ -142,7 +142,20 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.token_count_input.required",
+      "check_id": "week3-test.processing_time_ms.statistical_drift",
+      "column_name": "processing_time_ms",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
+      "check_id": "week3-test.token_count_input.required",
       "column_name": "token_count.input",
       "check_type": "required",
       "status": "PASS",
@@ -154,7 +167,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.token_count_input.type",
+      "check_id": "week3-test.token_count_input.type",
       "column_name": "token_count.input",
       "check_type": "type",
       "status": "PASS",
@@ -166,7 +179,20 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.token_count_output.required",
+      "check_id": "week3-test.token_count_input.statistical_drift",
+      "column_name": "token_count.input",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
+      "check_id": "week3-test.token_count_output.required",
       "column_name": "token_count.output",
       "check_type": "required",
       "status": "PASS",
@@ -178,7 +204,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.token_count_output.type",
+      "check_id": "week3-test.token_count_output.type",
       "column_name": "token_count.output",
       "check_type": "type",
       "status": "PASS",
@@ -190,7 +216,20 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_at.required",
+      "check_id": "week3-test.token_count_output.statistical_drift",
+      "column_name": "token_count.output",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
+      "check_id": "week3-test.extracted_at.required",
       "column_name": "extracted_at",
       "check_type": "required",
       "status": "PASS",
@@ -202,7 +241,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_at.type",
+      "check_id": "week3-test.extracted_at.type",
       "column_name": "extracted_at",
       "check_type": "type",
       "status": "PASS",
@@ -214,7 +253,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_at.datetime",
+      "check_id": "week3-test.extracted_at.datetime",
       "column_name": "extracted_at",
       "check_type": "datetime",
       "status": "PASS",
@@ -226,7 +265,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_fact_id.type",
+      "check_id": "week3-test.extracted_facts_fact_id.type",
       "column_name": "extracted_facts.fact_id",
       "check_type": "type",
       "status": "PASS",
@@ -238,7 +277,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_fact_id.uuid",
+      "check_id": "week3-test.extracted_facts_fact_id.uuid",
       "column_name": "extracted_facts.fact_id",
       "check_type": "uuid",
       "status": "PASS",
@@ -250,7 +289,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_text.type",
+      "check_id": "week3-test.extracted_facts_text.type",
       "column_name": "extracted_facts.text",
       "check_type": "type",
       "status": "PASS",
@@ -262,7 +301,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_confidence.type",
+      "check_id": "week3-test.extracted_facts_confidence.type",
       "column_name": "extracted_facts.confidence",
       "check_type": "type",
       "status": "PASS",
@@ -274,7 +313,7 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_confidence.range",
+      "check_id": "week3-test.extracted_facts_confidence.range",
       "column_name": "extracted_facts.confidence",
       "check_type": "range",
       "status": "FAIL",
@@ -286,7 +325,20 @@
       "message": "max=85.0 > maximum=1.0"
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_page_ref.type",
+      "check_id": "week3-test.extracted_facts_confidence.statistical_drift",
+      "column_name": "extracted_facts.confidence",
+      "check_type": "statistical_drift",
+      "status": "FAIL",
+      "actual_value": "mean=85.0, std=0.0",
+      "expected": "baseline_mean=0.85, baseline_std=0.0",
+      "severity": "HIGH",
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "extracted_facts.confidence mean drifted 84150000000.0 stddev from baseline",
+      "z_score": 84150000000.0
+    },
+    {
+      "check_id": "week3-test.extracted_facts_page_ref.type",
       "column_name": "extracted_facts.page_ref",
       "check_type": "type",
       "status": "PASS",
@@ -298,7 +350,20 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_source_excerpt.type",
+      "check_id": "week3-test.extracted_facts_page_ref.statistical_drift",
+      "column_name": "extracted_facts.page_ref",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
+      "check_id": "week3-test.extracted_facts_source_excerpt.type",
       "column_name": "extracted_facts.source_excerpt",
       "check_type": "type",
       "status": "PASS",

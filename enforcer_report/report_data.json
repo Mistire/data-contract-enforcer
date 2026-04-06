@@ -1,158 +1,172 @@
 {
-  "generated_at": "2026-04-05T02:42:57.708099+00:00",
-  "period": "2026-04-01 to 2026-04-05",
+  "generated_at": "2026-04-06T09:51:59.206669+00:00",
+  "period": "2026-04-06 to 2026-04-06",
   "data_health_score": 0,
-  "health_narrative": "Score of 0/100. 7 critical issue(s) require immediate action.",
+  "health_narrative": "Score of 0/100. 5 critical issue(s) require immediate action.",
   "top_violations": [
     {
-      "system": "week3-document-refinery-extractions",
+      "system": "Document Refinery (W3)",
       "field": "extracted_facts.confidence",
       "severity": "CRITICAL",
-      "impact": "The extracted_facts.confidence field in week3-document-refinery-extractions failed its range check. Expected min>=0.0, max<=1.0 but found max=85.0, mean=85.0. This affects 144 records."
+      "impact": "The extracted_facts.confidence field in Document Refinery (W3) failed its range check. Expected min>=0.0, max<=1.0 but found max=85.0, mean=85.0. This affects 0 records."
     },
     {
-      "system": "week3",
+      "system": "Document Refinery (W3)",
       "field": "extracted_facts.confidence",
       "severity": "CRITICAL",
-      "impact": "The extracted_facts.confidence field in week3 failed its range check. Expected max<=1.0, min>=0.0 but found max=85.0, mean=85.0. This affects 144 records."
+      "impact": "The extracted_facts.confidence field in Document Refinery (W3) failed its range check. Expected max<=1.0, min>=0.0 but found max=85.0, mean=85.0. This affects 0 records."
     },
     {
-      "system": "week3-document-refinery-extractions",
+      "system": "Document Refinery (W3)",
       "field": "extracted_facts.confidence",
       "severity": "CRITICAL",
-      "impact": "The extracted_facts.confidence field in week3-document-refinery-extractions failed its range check. Expected min>=0.0, max<=1.0 but found max=85.0, mean=85.0. This affects 144 records."
+      "impact": "The extracted_facts.confidence field in Document Refinery (W3) failed its range check. Expected min>=0.0, max<=1.0 but found max=85.0, mean=85.0. This affects 0 records."
     }
   ],
   "total_violations_by_severity": {
-    "CRITICAL": 7,
-    "HIGH": 11,
+    "CRITICAL": 5,
+    "HIGH": 15,
     "MEDIUM": 0,
     "LOW": 0
   },
-  "violation_count": 18,
+  "violation_count": 20,
   "violations_this_week": [
     {
-      "system": "week3-document-refinery-extractions",
+      "system": "Document Refinery (W3)",
       "field": "extracted_facts.confidence",
       "severity": "CRITICAL",
-      "impact": "The extracted_facts.confidence field in week3-document-refinery-extractions failed its range check. Expected min>=0.0, max<=1.0 but found max=85.0, mean=85.0. This affects 144 records."
+      "impact": "The extracted_facts.confidence field in Document Refinery (W3) failed its range check. Expected min>=0.0, max<=1.0 but found max=85.0, mean=85.0. This affects 0 records."
     },
     {
-      "system": "week3",
+      "system": "Document Refinery (W3)",
       "field": "extracted_facts.confidence",
       "severity": "CRITICAL",
-      "impact": "The extracted_facts.confidence field in week3 failed its range check. Expected max<=1.0, min>=0.0 but found max=85.0, mean=85.0. This affects 144 records."
+      "impact": "The extracted_facts.confidence field in Document Refinery (W3) failed its range check. Expected max<=1.0, min>=0.0 but found max=85.0, mean=85.0. This affects 0 records."
     },
     {
-      "system": "week3-document-refinery-extractions",
+      "system": "Document Refinery (W3)",
       "field": "extracted_facts.confidence",
       "severity": "CRITICAL",
-      "impact": "The extracted_facts.confidence field in week3-document-refinery-extractions failed its range check. Expected min>=0.0, max<=1.0 but found max=85.0, mean=85.0. This affects 144 records."
+      "impact": "The extracted_facts.confidence field in Document Refinery (W3) failed its range check. Expected min>=0.0, max<=1.0 but found max=85.0, mean=85.0. This affects 0 records."
     },
     {
-      "system": "week3",
+      "system": "Document Refinery (W3)",
       "field": "extracted_facts.confidence",
       "severity": "CRITICAL",
-      "impact": "The extracted_facts.confidence field in week3 failed its range check. Expected max<=1.0, min>=0.0 but found max=85.0, mean=85.0. This affects 144 records."
+      "impact": "The extracted_facts.confidence field in Document Refinery (W3) failed its range check. Expected max<=1.0, min>=0.0 but found max=85.0, mean=85.0. This affects 0 records."
     },
     {
-      "system": "week3-test",
-      "field": "extracted_facts.page_ref",
-      "severity": "CRITICAL",
-      "impact": "The extracted_facts.page_ref field in week3-test failed its required check. Expected null_count=0 but found null_count=11. This affects 11 records."
-    },
-    {
-      "system": "week3-test",
-      "field": "extracted_facts.page_ref",
-      "severity": "CRITICAL",
-      "impact": "The extracted_facts.page_ref field in week3-test failed its range check. Expected min>=0.0, max<=1.0 but found max=9.0, mean=3.11. This affects 144 records."
-    },
-    {
-      "system": "week5",
+      "system": "Global Event Store (W5)",
       "field": "sequence_number",
       "severity": "CRITICAL",
-      "impact": "The sequence_number field in week5 failed its monotonic check. Expected monotonically increasing per aggregate_id but found 173 non-monotonic steps. This affects 173 records."
+      "impact": "The sequence_number field in Global Event Store (W5) failed its monotonic check. Expected monotonically increasing per aggregate_id but found 173 non-monotonic steps. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Quality Scorer (W2)",
+      "field": "rubric_id",
+      "severity": "HIGH",
+      "impact": "The rubric_id field in Quality Scorer (W2) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 55 non-UUID values. This affects 0 records."
+    },
+    {
+      "system": "Document Refinery (W3)",
+      "field": "extracted_facts.confidence",
+      "severity": "HIGH",
+      "impact": "The extracted_facts.confidence field in Document Refinery (W3) failed its statistical_drift check. Expected baseline_mean=0.85, baseline_std=0.0 but found mean=85.0, std=0.0. This affects 0 records."
+    },
+    {
+      "system": "Document Refinery (W3)",
+      "field": "extracted_facts.confidence",
+      "severity": "HIGH",
+      "impact": "The extracted_facts.confidence field in Document Refinery (W3) failed its statistical_drift check. Expected baseline_mean=0.85, baseline_std=0.0 but found mean=85.0, std=0.0. This affects 0 records."
+    },
+    {
+      "system": "Lineage Cartographer (W4)",
+      "field": "nodes.node_id",
+      "severity": "HIGH",
+      "impact": "The nodes.node_id field in Lineage Cartographer (W4) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 9 non-UUID values. This affects 0 records."
+    },
+    {
+      "system": "Global Event Store (W5)",
       "field": "aggregate_id",
       "severity": "HIGH",
-      "impact": "The aggregate_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 1198 non-UUID values. This affects 1198 records."
+      "impact": "The aggregate_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 1198 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "payload.application_id",
       "severity": "HIGH",
-      "impact": "The payload.application_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 641 non-UUID values. This affects 641 records."
+      "impact": "The payload.application_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 641 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "payload.applicant_id",
       "severity": "HIGH",
-      "impact": "The payload.applicant_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 43 non-UUID values. This affects 43 records."
+      "impact": "The payload.applicant_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 43 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "metadata.user_id",
       "severity": "HIGH",
-      "impact": "The metadata.user_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 1198 non-UUID values. This affects 1198 records."
+      "impact": "The metadata.user_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 1198 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "payload.package_id",
       "severity": "HIGH",
-      "impact": "The payload.package_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 265 non-UUID values. This affects 265 records."
+      "impact": "The payload.package_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 265 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "payload.document_id",
       "severity": "HIGH",
-      "impact": "The payload.document_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 310 non-UUID values. This affects 310 records."
+      "impact": "The payload.document_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 310 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "payload.session_id",
       "severity": "HIGH",
-      "impact": "The payload.session_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 704 non-UUID values. This affects 704 records."
+      "impact": "The payload.session_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 704 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "payload.agent_id",
       "severity": "HIGH",
-      "impact": "The payload.agent_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 59 non-UUID values. This affects 59 records."
+      "impact": "The payload.agent_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 59 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "payload.triggered_by_event_id",
       "severity": "HIGH",
-      "impact": "The payload.triggered_by_event_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 32 non-UUID values. This affects 32 records."
+      "impact": "The payload.triggered_by_event_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 32 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "payload.rule_id",
       "severity": "HIGH",
-      "impact": "The payload.rule_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 47 non-UUID values. This affects 47 records."
+      "impact": "The payload.rule_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 47 non-UUID values. This affects 0 records."
     },
     {
-      "system": "week5-event-records",
+      "system": "Global Event Store (W5)",
       "field": "payload.orchestrator_session_id",
       "severity": "HIGH",
-      "impact": "The payload.orchestrator_session_id field in week5-event-records failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 7 non-UUID values. This affects 7 records."
+      "impact": "The payload.orchestrator_session_id field in Global Event Store (W5) failed its uuid check. Expected format: uuid (^[0-9a-f-]{36}$) but found 7 non-UUID values. This affects 0 records."
     }
   ],
   "schema_changes_detected": 0,
   "recommendations": [
-    "Update week3-document-refinery-extractions to output extracted_facts.confidence within the declared range. (Action: Check contracts/week3-document-refinery-extractions.yaml for 'extracted_facts.confidence' range clause)",
-    "Update week3 to output extracted_facts.confidence within the declared range. (Action: Check contracts/week3.yaml for 'extracted_facts.confidence' range clause)",
-    "Ensure week3-test always populates the required field extracted_facts.page_ref. (Action: Check contracts/week3-test.yaml for 'extracted_facts.page_ref' required clause)",
-    "Update week3-test to output extracted_facts.page_ref within the declared range. (Action: Check contracts/week3-test.yaml for 'extracted_facts.page_ref' range clause)",
-    "Review week5 contract for sequence_number. (Action: Check contracts/week5.yaml for 'sequence_number' monotonic clause)",
-    "Ensure week5-event-records generates valid UUIDs for aggregate_id. (Action: Check contracts/week5-event-records.yaml for 'aggregate_id' uuid clause)",
-    "Ensure week5-event-records generates valid UUIDs for payload.application_id. (Action: Check contracts/week5-event-records.yaml for 'payload.application_id' uuid clause)",
-    "Ensure week5-event-records generates valid UUIDs for payload.applicant_id. (Action: Check contracts/week5-event-records.yaml for 'payload.applicant_id' uuid clause)"
+    "Ensure Quality Scorer (W2) generates valid UUIDs for rubric_id. (Action: Check contracts/week2-verdicts.yaml for 'rubric_id' uuid clause)",
+    "Update Document Refinery (W3) to output extracted_facts.confidence within the declared range. (Action: Check contracts/week3.yaml for 'extracted_facts.confidence' range clause)",
+    "Update Document Refinery (W3) to output extracted_facts.confidence within the declared range. (Action: Check contracts/week3-document-refinery-extractions.yaml for 'extracted_facts.confidence' range clause)",
+    "Update Document Refinery (W3) to output extracted_facts.confidence within the declared range. (Action: Check contracts/week3-test.yaml for 'extracted_facts.confidence' range clause)",
+    "Ensure Lineage Cartographer (W4) generates valid UUIDs for nodes.node_id. (Action: Check contracts/week4-lineage-snapshots.yaml for 'nodes.node_id' uuid clause)",
+    "Review Global Event Store (W5) contract for sequence_number. (Action: Check contracts/week5.yaml for 'sequence_number' monotonic clause)",
+    "Ensure Global Event Store (W5) generates valid UUIDs for aggregate_id. (Action: Check contracts/week5-event-records.yaml for 'aggregate_id' uuid clause)",
+    "Investigate Document Refinery (W3) for data distribution shift in extracted_facts.confidence. (Action: Check contracts/week3-document-refinery-extractions.yaml for 'extracted_facts.confidence' statistical_drift clause)",
+    "Investigate Document Refinery (W3) for data distribution shift in extracted_facts.confidence. (Action: Check contracts/week3-test.yaml for 'extracted_facts.confidence' statistical_drift clause)",
+    "Ensure Global Event Store (W5) generates valid UUIDs for payload.application_id. (Action: Check contracts/week5-event-records.yaml for 'payload.application_id' uuid clause)"
   ],
   "ai_risk_assessment": {
-    "embedding_drift_status": "UNKNOWN",
+    "embedding_drift_status": "PASS",
     "embedding_drift_score": 0.0,
     "llm_violation_rate": 0.0,
     "llm_violation_trend": "unknown"

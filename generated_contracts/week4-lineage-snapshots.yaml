@@ -1,56 +1,66 @@
 kind: DataContract
 apiVersion: v3.0.0
-id: week1-intent-records
+id: week4-lineage-snapshots
 info:
-  title: week1-intent-records
+  title: week4-lineage-snapshots
   version: 1.0.0
   owner: data-contract-enforcer
 servers:
   local:
     type: local
-    path: outputs/week1/intent_records.jsonl
+    path: outputs/week4/lineage_snapshots.jsonl
     format: jsonl
 schema:
-  intent_id:
+  snapshot_id:
     type: string
     required: true
     format: uuid
     pattern: ^[0-9a-f-]{36}$
-  description:
+  codebase_root:
     type: string
     required: true
-    llm_annotation: The 'description' column provides a textual narrative summarizing
-      the user's inferred intent or purpose behind an action or interaction.
-  created_at:
+  git_commit:
+    type: string
+    required: true
+  captured_at:
     type: string
     required: true
     format: date-time
-  code_refs.file:
+  nodes.node_id:
     type: string
     required: false
-  code_refs.line_start:
-    type: number
-    required: false
-  code_refs.line_end:
-    type: number
-    required: false
-  code_refs.symbol:
+    format: uuid
+    pattern: ^[0-9a-f-]{36}$
+  nodes.type:
     type: string
     required: false
-  code_refs.confidence:
+  nodes.label:
+    type: string
+    required: false
+  edges.source:
+    type: string
+    required: false
+  edges.target:
+    type: string
+    required: false
+  edges.relationship:
+    type: string
+    required: false
+  edges.confidence:
     type: number
     required: false
     minimum: 0.0
     maximum: 1.0
     description: Confidence score. Must remain 0.0-1.0 float. BREAKING if changed
       to 0-100.
-  governance_tags:
-    type: string
-    required: false
 lineage:
   upstream: []
   downstream:
-  - id: file::src/week2/auditor.py
+  - id: file::src/week4/cartographer.py
+    fields_consumed:
+    - doc_id
+    - extracted_facts
+  - id: pipeline::week7-contract-enforcement
     fields_consumed:
     - doc_id
     - extracted_facts

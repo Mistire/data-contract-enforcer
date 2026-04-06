@@ -8,7 +8,7 @@ info:
 servers:
   local:
     type: local
-    path: outputs/week3/...
+    path: outputs/week3/extractions.jsonl
     format: jsonl
 schema:
   doc_id:
@@ -33,6 +33,9 @@ schema:
     required: true
   token_count.output:
     type: integer
+    required: true
+  extra_metadata:
+    type: string
     required: true
   extracted_at:
     type: string
@@ -61,4 +64,16 @@ schema:
     required: false
 lineage:
   upstream: []
-  downstream: []
+  downstream:
+  - id: file::src/week4/cartographer.py
+    fields_consumed:
+    - doc_id
+    - extracted_facts
+  - id: pipeline::week4-lineage-generation
+    fields_consumed:
+    - doc_id
+    - extracted_facts
+  - id: file::src/week3/extractor.py
+    fields_consumed:
+    - doc_id
+    - extracted_facts

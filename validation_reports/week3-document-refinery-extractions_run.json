@@ -1,11 +1,11 @@
 {
-  "report_id": "6c910038-9fd7-4341-8563-a19a0a247527",
+  "report_id": "3c9aa0ba-6a69-4338-b51c-750b56f2721c",
   "contract_id": "week3-document-refinery-extractions",
-  "snapshot_id": "aea26455f7acf2e33b9e42d8ad4ad7fe95517c23ccfa231d00c482fa9c2eaefa",
-  "run_timestamp": "2026-04-05T02:05:54.072888+00:00",
-  "total_checks": 26,
-  "passed": 26,
-  "failed": 0,
+  "snapshot_id": "d65d0af4b262c6ab02708452d4c00cc2083577f7fc29b14fc3641db02118d92c",
+  "run_timestamp": "2026-04-06T09:51:47.301294+00:00",
+  "total_checks": 33,
+  "passed": 30,
+  "failed": 3,
   "warned": 0,
   "errored": 0,
   "results": [
@@ -142,6 +142,19 @@
       "message": ""
     },
     {
+      "check_id": "week3-document-refinery-extractions.processing_time_ms.statistical_drift",
+      "column_name": "processing_time_ms",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week3-document-refinery-extractions.token_count_input.required",
       "column_name": "token_count.input",
       "check_type": "required",
@@ -166,6 +179,19 @@
       "message": ""
     },
     {
+      "check_id": "week3-document-refinery-extractions.token_count_input.statistical_drift",
+      "column_name": "token_count.input",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week3-document-refinery-extractions.token_count_output.required",
       "column_name": "token_count.output",
       "check_type": "required",
@@ -180,6 +206,43 @@
     {
       "check_id": "week3-document-refinery-extractions.token_count_output.type",
       "column_name": "token_count.output",
+      "check_type": "type",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": ""
+    },
+    {
+      "check_id": "week3-document-refinery-extractions.token_count_output.statistical_drift",
+      "column_name": "token_count.output",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
+      "check_id": "week3-document-refinery-extractions.extra_metadata.required",
+      "column_name": "extra_metadata",
+      "check_type": "required",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": ""
+    },
+    {
+      "check_id": "week3-document-refinery-extractions.extra_metadata.type",
+      "column_name": "extra_metadata",
       "check_type": "type",
       "status": "PASS",
       "actual_value": "",
@@ -277,13 +340,26 @@
       "check_id": "week3-document-refinery-extractions.extracted_facts_confidence.range",
       "column_name": "extracted_facts.confidence",
       "check_type": "range",
-      "status": "PASS",
-      "actual_value": "min=0.85, max=0.85",
-      "expected": "",
-      "severity": null,
+      "status": "FAIL",
+      "actual_value": "max=85.0, mean=85.0",
+      "expected": "min>=0.0, max<=1.0",
+      "severity": "CRITICAL",
+      "records_failing": 144,
+      "sample_failing": [],
+      "message": "max=85.0 > maximum=1.0"
+    },
+    {
+      "check_id": "week3-document-refinery-extractions.extracted_facts_confidence.statistical_drift",
+      "column_name": "extracted_facts.confidence",
+      "check_type": "statistical_drift",
+      "status": "FAIL",
+      "actual_value": "mean=85.0, std=0.0",
+      "expected": "baseline_mean=0.85, baseline_std=0.0",
+      "severity": "HIGH",
       "records_failing": 0,
       "sample_failing": [],
-      "message": ""
+      "message": "extracted_facts.confidence mean drifted 84150000000.0 stddev from baseline",
+      "z_score": 84150000000.0
     },
     {
       "check_id": "week3-document-refinery-extractions.extracted_facts_page_ref.type",
@@ -296,6 +372,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week3-document-refinery-extractions.extracted_facts_page_ref.statistical_drift",
+      "column_name": "extracted_facts.page_ref",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week3-document-refinery-extractions.extracted_facts_source_excerpt.type",
@@ -313,9 +402,19 @@
       "check_id": "week3.extracted_facts.confidence.range",
       "column_name": "extracted_facts.confidence",
       "check_type": "range",
-      "status": "PASS",
-      "records_failing": 0,
-      "sample_failing": []
+      "status": "FAIL",
+      "actual_value": "max=85.0, mean=85.0",
+      "expected": "max<=1.0, min>=0.0",
+      "severity": "CRITICAL",
+      "records_failing": 144,
+      "sample_failing": [
+        85.0,
+        85.0,
+        85.0,
+        85.0,
+        85.0
+      ],
+      "message": "confidence is in 0-100 range, not 0.0-1.0. Breaking change detected."
     }
   ]
 }

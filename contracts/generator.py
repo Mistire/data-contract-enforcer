@@ -363,37 +363,47 @@ def _inject_lineage(contract_id: str, lineage_path: str | Path | None) -> dict:
 # ---------------------------------------------------------------------------
 
 def _enrich_with_llm(clauses: list[ContractClause], contract_id: str) -> None:
-    """Use OpenRouter to add annotations for ambiguous columns."""
-    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
+    """Use OpenRouter or OpenAI to add annotations for ambiguous columns."""
+    api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        log.warning("No OPENROUTER_API_KEY or OPENAI_API_KEY found — skipping LLM enrichment")
+        log.warning("No OPENAI_API_KEY found — skipping LLM enrichment")
         return
 
     try:
-        from openai import OpenAI
-        client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=api_key,
-        )
+        from langchain_openai import ChatOpenAI
+        from langchain_core.messages import HumanMessage
+        
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return
+
+        # Configure for OpenRouter if applicable
+        if api_key.startswith("sk-or-"):
+            # OpenRouter model names usually follow model/name format
+            # Using google/gemini-2.0-flash-001 by default
+            model_name = "google/gemini-2.0-flash-001"
+            chat = ChatOpenAI(
+                model=model_name, 
+                openai_api_key=api_key,
+                openai_api_base="https://openrouter.ai/api/v1"
+            )
+        else:
+            model_name = "gpt-4o-mini" # Standard OpenAI
+            chat = ChatOpenAI(model=model_name, openai_api_key=api_key)
 
         ambiguous = [c for c in clauses if len(c.field_path) < 5 or "_" not in c.field_path]
         if not ambiguous:
             return
 
         fields = [c.field_path for c in ambiguous]
-        prompt = (
+        prompt_text = (
             f"You are a data architect. Provide a 1-sentence business definition for each of these "
             f"columns in a dataset named '{contract_id}': {fields}. "
             f"Return a JSON mapping index to definition."
         )
 
-        resp = client.chat.completions.create(
-            model="google/gemini-2.0-flash-001",
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
-            timeout=15,
-        )
-        mapping = json.loads(resp.choices[0].message.content or "{}")
+        response = chat.invoke([HumanMessage(content=prompt_text)])
+        mapping = json.loads(response.content or "{}")
 
         for i, clause in enumerate(ambiguous):
             clause.llm_annotation = mapping.get(str(i)) or mapping.get(clause.field_path)
@@ -468,6 +478,7 @@ def _write_bitol_yaml(
     clauses: list[ContractClause],
     lineage: dict,
     output_dir: str | Path,
+    source_path: str = "",
 ) -> Path:
     """Write Bitol-compatible contract YAML and return the output path."""
     output_dir = Path(output_dir)
@@ -493,7 +504,7 @@ def _write_bitol_yaml(
         "servers": {
             "local": {
                 "type": "local",
-                "path": f"outputs/{week}/...",
+                "path": source_path if source_path else f"outputs/{week}/...",
                 "format": "jsonl",
             }
         },
@@ -694,7 +705,7 @@ def main() -> None:
         lineage = _inject_lineage(args.contract_id, args.lineage)
 
         # 5. Write Bitol YAML
-        bitol_path = _write_bitol_yaml(args.contract_id, clauses, lineage, args.output)
+        bitol_path = _write_bitol_yaml(args.contract_id, clauses, lineage, args.output, source_path=args.source)
 
         # 6. Write dbt YAML
         dbt_path = _write_dbt_yaml(args.contract_id, clauses, args.output)

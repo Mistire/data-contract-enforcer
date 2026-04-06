@@ -20,6 +20,22 @@ from typing import Any
 logging.basicConfig(stream=sys.stderr, level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
 
+SYSTEM_NAMES = {
+    "week1": "Intent Miner (W1)",
+    "week2": "Quality Scorer (W2)",
+    "week3": "Document Refinery (W3)",
+    "week4": "Lineage Cartographer (W4)",
+    "week5": "Global Event Store (W5)",
+    "langsmith-traces": "Trace Observability (AI)",
+}
+
+def get_system_name(cid: str) -> str:
+    # Match prefixes or IDs
+    for key, name in SYSTEM_NAMES.items():
+        if cid.startswith(key):
+            return name
+    return cid
+
 # ---------------------------------------------------------------------------
 # Well-known paths
 # ---------------------------------------------------------------------------
@@ -81,14 +97,16 @@ def _load_all_validation_reports() -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def compute_health_score(validation_reports: list[dict]) -> int:
-    deductions = {"CRITICAL": 25, "HIGH": 10, "MEDIUM": 5, "LOW": 1}
-    score = 100
-    for report in validation_reports:
-        for result in report.get("results", []):
-            if result.get("status") in ("FAIL", "ERROR"):
-                severity = result.get("severity") or "LOW"
-                score -= deductions.get(severity, 1)
-    return max(0, min(100, score))
+    """Compute health score per challenge spec: (passed/total)*100 - (critical_count * 20)."""
+    total_checks = sum(r.get("total_checks", 0) for r in validation_reports)
+    passed = sum(r.get("passed", 0) for r in validation_reports)
+    base = int((passed / max(total_checks, 1)) * 100)
+    critical_count = sum(
+        1 for r in validation_reports
+        for result in r.get("results", [])
+        if result.get("status") in ("FAIL", "ERROR") and result.get("severity") == "CRITICAL"
+    )
+    return max(0, min(100, base - (critical_count * 20)))
 
 
 # ---------------------------------------------------------------------------
@@ -96,17 +114,18 @@ def compute_health_score(validation_reports: list[dict]) -> int:
 # ---------------------------------------------------------------------------
 
 def plain_language_violation(result: dict) -> dict:
-    check_id = result.get("check_id", "")
+    check_id = result.get("check_id", "unknown")
     system = check_id.split(".")[0] if "." in check_id else "unknown"
     field = result.get("column_name", "unknown field")
     severity = result.get("severity", "LOW")
-    records = result.get("records_failing", 0)
+    records = result.get("failed_records_count", 0)
+    system_name = get_system_name(system)
     return {
-        "system": system,
+        "system": system_name,
         "field": field,
         "severity": severity,
         "impact": (
-            f"The {field} field in {system} failed its {result.get('check_type', 'contract')} check. "
+            f"The {field} field in {system_name} failed its {result.get('check_type', 'contract')} check. "
             f"Expected {result.get('expected', 'valid values')} but found "
             f"{result.get('actual_value', 'invalid values')}. "
             f"This affects {records} records."
@@ -132,21 +151,36 @@ _RECOMMENDATION_TEMPLATES = {
 def _generate_recommendations(fail_results: list[dict]) -> list[str]:
     seen: set[str] = set()
     recs: list[str] = []
+    
+    # Try to pick 1 per system first for diversity
+    all_systems = sorted(list({r.get("check_id", "").split(".")[0] for r in fail_results if "." in r.get("check_id", "")}))
+    for sys_id in all_systems:
+        matching = [r for r in fail_results if r.get("check_id", "").startswith(sys_id)]
+        if matching:
+            result = matching[0]
+            system_name = get_system_name(sys_id)
+            field = result.get("column_name", "unknown field")
+            check_type = result.get("check_type", "contract")
+            template = _RECOMMENDATION_TEMPLATES.get(check_type, "Review {system} contract for {field}.")
+            rec = template.format(system=system_name, field=field)
+            detailed_rec = f"{rec} (Action: Check contracts/{sys_id}.yaml for '{field}' {check_type} clause)"
+            recs.append(detailed_rec)
+            seen.add(detailed_rec)
+            
+    # Top up to 10 with other top fails
     for result in fail_results:
+        if len(recs) >= 10: break
         check_id = result.get("check_id", "")
         system = check_id.split(".")[0] if "." in check_id else "unknown"
+        system_name = get_system_name(system)
         field = result.get("column_name", "unknown field")
         check_type = result.get("check_type", "contract")
-        
-        # Enhanced with file paths and clauses
-        contract_file = f"contracts/{system}.yaml"
         template = _RECOMMENDATION_TEMPLATES.get(check_type, "Review {system} contract for {field}.")
-        rec = template.format(system=system, field=field)
-        detailed_rec = f"{rec} (Action: Check {contract_file} for '{field}' {check_type} clause)"
-        
+        rec = template.format(system=system_name, field=field)
+        detailed_rec = f"{rec} (Action: Check contracts/{system}.yaml for '{field}' {check_type} clause)"
         if detailed_rec not in seen:
-            seen.add(detailed_rec)
             recs.append(detailed_rec)
+            seen.add(detailed_rec)
     return recs
 
 
@@ -251,16 +285,23 @@ def main() -> None:
         # Tally by severity
         severity_tally = _tally_by_severity(all_fail_results)
 
-        # Top 3 violations (sorted by severity weight)
+        # Top 3 violations (ensure system diversity)
         severity_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, None: 4}
         sorted_fails = sorted(
             all_fail_results,
             key=lambda r: severity_order.get(r.get("severity"), 4),
         )
-        top_violations = [plain_language_violation(r) for r in sorted_fails[:3]]
-
+        top_violations = []
+        featured_systems: set[str] = set()
+        for r in sorted_fails:
+            sys_id = r.get("check_id", "").split(".")[0] if "." in r.get("check_id", "") else "unknown"
+            if sys_id not in featured_systems:
+                top_violations.append(plain_language_violation(r))
+                featured_systems.add(sys_id)
+            if len(top_violations) >= 3: break
+        
         # Recommendations
-        recommendations = _generate_recommendations(sorted_fails[:10])
+        recommendations = _generate_recommendations(sorted_fails)
 
         # Period
         period = _detect_period(validation_reports)

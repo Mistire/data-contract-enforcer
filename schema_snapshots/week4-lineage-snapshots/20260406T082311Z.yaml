@@ -1,0 +1,45 @@
+contract_id: week4-lineage-snapshots
+captured_at: '2026-04-06T08:23:11.856837+00:00'
+schema:
+  snapshot_id:
+    type: string
+    required: true
+    format: uuid
+    pattern: ^[0-9a-f-]{36}$
+  codebase_root:
+    type: string
+    required: true
+  git_commit:
+    type: string
+    required: true
+  captured_at:
+    type: string
+    required: true
+    format: date-time
+  nodes.node_id:
+    type: string
+    required: false
+    format: uuid
+    pattern: ^[0-9a-f-]{36}$
+  nodes.type:
+    type: string
+    required: false
+  nodes.label:
+    type: string
+    required: false
+  edges.source:
+    type: string
+    required: false
+  edges.target:
+    type: string
+    required: false
+  edges.relationship:
+    type: string
+    required: false
+  edges.confidence:
+    type: number
+    required: false
+    minimum: 0.0
+    maximum: 1.0
+    description: Confidence score. Must remain 0.0-1.0 float. BREAKING if changed
+      to 0-100.

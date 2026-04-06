@@ -1,15 +1,5 @@
-kind: DataContract
-apiVersion: v3.0.0
-id: week5-event-records
-info:
-  title: week5-event-records
-  version: 1.0.0
-  owner: data-contract-enforcer
-servers:
-  local:
-    type: local
-    path: outputs/week5/events.jsonl
-    format: jsonl
+contract_id: week5-event-records
+captured_at: '2026-04-06T08:30:29.996012+00:00'
 schema:
   event_id:
     type: string
@@ -397,10 +387,3 @@ schema:
   payload.remediation_description:
     type: number
     required: false
-lineage:
-  upstream: []
-  downstream:
-  - id: pipeline::week7-contract-enforcement
-    fields_consumed:
-    - doc_id
-    - extracted_facts

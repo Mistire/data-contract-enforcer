@@ -1,15 +1,5 @@
-kind: DataContract
-apiVersion: v3.0.0
-id: week1-intent-records
-info:
-  title: week1-intent-records
-  version: 1.0.0
-  owner: data-contract-enforcer
-servers:
-  local:
-    type: local
-    path: outputs/week1/intent_records.jsonl
-    format: jsonl
+contract_id: week1-intent-records
+captured_at: '2026-04-06T08:30:12.135148+00:00'
 schema:
   intent_id:
     type: string
@@ -47,10 +37,3 @@ schema:
   governance_tags:
     type: string
     required: false
-lineage:
-  upstream: []
-  downstream:
-  - id: file::src/week2/auditor.py
-    fields_consumed:
-    - doc_id
-    - extracted_facts

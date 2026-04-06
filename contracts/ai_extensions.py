@@ -19,10 +19,15 @@ import argparse
 import hashlib
 import json
 import logging
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
@@ -64,15 +69,30 @@ def check_embedding_drift(
         return {"status": "ERROR", "message": "numpy not available", "drift_score": 0.0}
 
     try:
-        from openai import OpenAI
-        client = OpenAI()
+        from langchain_openai import OpenAIEmbeddings
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return {"status": "ERROR", "message": "No OPENAI_API_KEY found", "drift_score": 0.0}
+        
+        # Configure for OpenRouter if applicable
+        if api_key.startswith("sk-or-"):
+            embeddings = OpenAIEmbeddings(
+                model="text-embedding-3-small", 
+                openai_api_key=api_key,
+                openai_api_base="https://openrouter.ai/api/v1"
+            )
+        else:
+            embeddings = OpenAIEmbeddings(model="text-embedding-3-small", openai_api_key=api_key)
+            
         sample = texts[:200] if len(texts) > 200 else texts
         if not sample:
             return {"status": "ERROR", "message": "No texts provided", "drift_score": 0.0}
-        resp = client.embeddings.create(input=sample, model="text-embedding-3-small")
-        vecs = np.array([e.embedding for e in resp.data])
+            
+        vectors_list = embeddings.embed_documents(sample)
+        vecs = np.array(vectors_list)
         current_centroid = vecs.mean(axis=0)
     except Exception as exc:
+        log.error("Embedding API failed: %s", exc)
         return {"status": "ERROR", "message": f"Embedding API failed: {exc}", "drift_score": 0.0}
 
     bp = Path(baseline_path)

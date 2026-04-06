@@ -7,15 +7,40 @@ contracts/ modules. Run with:
     streamlit run dashboard/app.py
 """
 import json
+import os
 import subprocess
 from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import yaml
+from dotenv import load_dotenv
 
-st.set_page_config(page_title="Data Contract Enforcer", layout="wide")
-st.title("🛡️ Data Contract Enforcer")
+load_dotenv()
+
+st.set_page_config(page_title="Data Contract Enforcer | Platform Health", layout="wide")
+st.title("Data Contract Enforcer")
+
+# ---------------------------------------------------------------------------
+# Business Mapping
+# ---------------------------------------------------------------------------
+
+SYSTEM_NAMES = {
+    "week1": "Intent Miner (W1)",
+    "week2": "Quality Scorer (W2)",
+    "week3": "Document Refinery (W3)",
+    "week4": "Lineage Cartographer (W4)",
+    "week5": "Global Event Store (W5)",
+    "langsmith-traces": "Trace Observability (AI)",
+}
+
+def get_system_name(cid: str) -> str:
+    # Match prefixes or IDs
+    for key, name in SYSTEM_NAMES.items():
+        if cid.startswith(key):
+            return name
+    return cid
 
 # ---------------------------------------------------------------------------
 # Data loaders — file-only, no caching so refresh always works
@@ -45,7 +70,25 @@ def load_contracts():
     p = Path("generated_contracts")
     if not p.exists():
         return []
-    return list(p.glob("*.yaml"))
+    contracts = []
+    try:
+        import yaml
+        for f in sorted(p.glob("*.yaml")):
+            if f.name.endswith("_dbt.yml"):
+                continue
+            with open(f, "r") as stream:
+                content = yaml.safe_load(stream)
+                cid = f.stem
+                display_name = get_system_name(cid)
+                contracts.append({
+                    "id": cid, 
+                    "display_name": display_name,
+                    "path": str(f), 
+                    "content": content
+                })
+    except Exception:
+        pass
+    return contracts
 
 
 def load_snapshots():
@@ -117,39 +160,86 @@ def load_schema_evolution():
 # ---------------------------------------------------------------------------
 
 with st.sidebar:
-    st.header("⚙️ Run Pipeline")
-    st.caption(f"Working directory: `{Path('.').resolve()}`")
+    st.header("Pipeline Operations")
+    st.caption(f"Project context: `{Path('.').resolve().name}`")
     st.markdown("---")
 
-    pipeline_steps = [
-        ("1. Migrate Week 3", "python outputs/migrate/migrate_week3.py"),
-        ("2. Generate Contracts", "python contracts/generator.py --source outputs/week3/extractions.jsonl --contract-id week3-document-refinery-extractions --lineage outputs/week4/lineage_snapshots.jsonl --output generated_contracts"),
-        ("3. Run Validation", "python contracts/runner.py --contract generated_contracts/week3-document-refinery-extractions.yaml --data outputs/week3/extractions.jsonl --output validation_reports/week3_run.json"),
-        ("4. Attribute Violations", "python contracts/attributor.py --violation validation_reports/week3_run.json --lineage outputs/week4/lineage_snapshots.jsonl --contract generated_contracts/week3-document-refinery-extractions.yaml --output violation_log/violations.jsonl"),
-        ("5. Schema Evolution", "python contracts/schema_analyzer.py --contract-id week3-document-refinery-extractions --output validation_reports/schema_evolution.json"),
-        ("6. Generate Report", "python contracts/report_generator.py"),
-    ]
+    contracts = load_contracts()
+    scope_options = ["All Systems"] + [c["display_name"] for c in contracts]
+    selected_scope = st.selectbox("Execution Scope", options=scope_options)
 
-    for label, cmd in pipeline_steps:
-        if st.button(label, use_container_width=True):
-            with st.spinner(f"Running: {cmd}"):
-                try:
-                    proc = subprocess.run(
-                        cmd, shell=True, capture_output=True, text=True, timeout=120
-                    )
-                    output = proc.stdout + proc.stderr
-                    st.code(output or "(no output)", language="text")
-                    if proc.returncode == 0:
-                        st.success("Done")
-                    else:
-                        st.error(f"Exit code {proc.returncode}")
-                except subprocess.TimeoutExpired:
-                    st.error("Command timed out after 120s")
-                except Exception as e:
-                    st.error(f"Error: {e}")
+    # 1. Run Comprehensive Audit
+    if st.button("Run Comprehensive Audit", width='stretch', type="primary"):
+        with st.spinner("Processing all systems..."):
+            try:
+                # Determine targets
+                if selected_scope == "All Systems":
+                    targets = contracts
+                else:
+                    targets = [c for c in contracts if c["display_name"] == selected_scope]
+                
+                # Full lifecycle loop
+                for target in targets:
+                    cid = target["id"]
+                    st.caption(f"Audit Phase: {target['display_name']}...")
+                    src = target["content"].get("servers", {}).get("local", {}).get("path", "")
+                    if src:
+                        # 1. Validate
+                        subprocess.run([
+                            "python", "contracts/runner.py", 
+                            "--contract", target["path"], 
+                            "--data", src, 
+                            "--output", f"validation_reports/{cid}_run.json"
+                        ], check=False, env=os.environ.copy())
+                        
+                        # 2. Attribute (Blame Chain)
+                        subprocess.run([
+                            "python", "contracts/attributor.py",
+                            "--violation", f"validation_reports/{cid}_run.json",
+                            "--lineage", "outputs/week4/lineage_snapshots.jsonl",
+                            "--contract", target["path"],
+                            "--output", "violation_log/violations.jsonl"
+                        ], check=False, env=os.environ.copy())
+                        
+                        # 3. Evolution (Diffing)
+                        subprocess.run([
+                            "python", "contracts/schema_analyzer.py",
+                            "--contract-id", cid,
+                            "--output", f"validation_reports/schema_evolution_{cid}.json"
+                        ], check=False, env=os.environ.copy())
+                
+                # AI Extensions
+                st.caption("Running AI Health Checks...")
+                subprocess.run(["python", "contracts/ai_extensions.py", "--output", "validation_reports/ai_extensions.json"], check=False, env=os.environ.copy())
+                
+                # Consolidate
+                st.caption("Consolidating health dashboard...")
+                subprocess.run(["python", "contracts/report_generator.py"], check=False, env=os.environ.copy())
+                
+                st.success("Platform audit complete.")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Audit failed: {e}")
 
     st.markdown("---")
-    if st.button("🔄 Refresh Dashboard", use_container_width=True, type="primary"):
+    # 2. Demo simulation
+    if st.button("Simulate Platform Failures (Demo Mode)", width='stretch'):
+        with st.spinner("Injecting violations..."):
+            subprocess.run(["python", "scripts/simulate_failures.py"], check=False)
+            st.success("Simulated data corruption applied. Click 'Refresh' to audit.")
+
+    st.markdown("---")
+    if st.button("Reset Platform State", width='stretch'):
+        with st.spinner("Clearing logs..."):
+            # Clear reports and logs
+            for f in Path("validation_reports").glob("*.json"):
+                f.unlink()
+            Path("violation_log/violations.jsonl").write_text("# Violations log\n")
+            st.success("Platform state reset.")
+            st.rerun()
+
+    st.markdown("---")
+    if st.button("Refresh Interface", width='stretch'):
         st.rerun()
 
 
@@ -157,8 +247,8 @@ with st.sidebar:
 # Main tabs
 # ---------------------------------------------------------------------------
 
-tab_health, tab_violations, tab_evolution, tab_ai, tab_coverage = st.tabs(
-    ["Health", "Violations", "Schema Evolution", "AI Risk", "Coverage"]
+tab_health, tab_violations, tab_evolution, tab_ai, tab_contracts, tab_coverage = st.tabs(
+    ["Health", "Violations", "Schema Evolution", "AI Risk", "Data Contracts", "Coverage"]
 )
 
 # ---------------------------------------------------------------------------
@@ -201,20 +291,48 @@ with tab_health:
                     },
                 ))
                 fig.update_layout(height=250, margin=dict(t=40, b=10, l=10, r=10))
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
                 if score >= 80:
-                    st.success(f"✅ Healthy ({score}/100)")
+                    st.success(f"Healthy ({score}/100)")
                 elif score >= 50:
-                    st.warning(f"⚠️ Degraded ({score}/100)")
+                    st.warning(f"Degraded ({score}/100)")
                 else:
-                    st.error(f"🚨 Critical ({score}/100)")
+                    st.error(f"Critical ({score}/100)")
 
             with col2:
                 if narrative:
-                    st.markdown(f"**{narrative}**")
+                    st.markdown(f"**Status Narrative**")
+                    st.info(narrative)
+                
                 generated_at = report.get("generated_at", "")
                 if generated_at:
                     st.caption(f"Generated at: {generated_at}")
+
+            st.markdown("---")
+            st.subheader("System Health Matrix")
+            # Build healthy/unhealthy matrix for all systems
+            reports = load_validation_reports()
+            matrix_data = []
+            for r in reports:
+                cid = r.get("contract_id", "unknown")
+                failed = r.get("failed", 0)
+                errored = r.get("errored", 0)
+                matrix_data.append({
+                    "System": get_system_name(cid),
+                    "Status": "FAIL" if (failed + errored) > 0 else "PASS",
+                    "Checks": r.get("total_checks", 0),
+                    "Failures": failed + errored,
+                })
+            if matrix_data:
+                st.dataframe(pd.DataFrame(matrix_data), width='stretch', hide_index=True)
+            
+            st.markdown("---")
+            st.subheader("Critical Observability Metrics")
+            col11, col12 = st.columns(2)
+            with col11:
+                st.metric("Total Active Violations", report.get("violation_count", 0))
+            with col12:
+                st.metric("Detected Schema Evolutions", report.get("schema_changes_detected", 0))
 
             st.markdown("---")
             st.subheader("Violations by Severity")
@@ -222,7 +340,7 @@ with tab_health:
                 sev_df = pd.DataFrame(
                     [{"Severity": k, "Count": v} for k, v in severity_tally.items()]
                 )
-                st.dataframe(sev_df, use_container_width=True, hide_index=True)
+                st.dataframe(sev_df, width='stretch', hide_index=True)
             else:
                 st.info("No severity data available")
 
@@ -231,7 +349,7 @@ with tab_health:
                 st.markdown("---")
                 st.subheader("Top Violations")
                 tv_df = pd.DataFrame(top_violations)
-                st.dataframe(tv_df, use_container_width=True, hide_index=True)
+                st.dataframe(tv_df, width='stretch', hide_index=True)
 
             recommendations = report.get("recommendations", [])
             if recommendations:
@@ -269,14 +387,14 @@ with tab_violations:
                     "detected_at": v.get("detected_at", ""),
                 })
             summary_df = pd.DataFrame(rows)
-            st.dataframe(summary_df, use_container_width=True, hide_index=True)
+            st.dataframe(summary_df, width='stretch', hide_index=True)
 
             st.markdown("---")
             st.subheader("Violation Details")
             for i, v in enumerate(violations):
                 check_id = v.get("check_id", f"violation_{i}")
                 detected_at = v.get("detected_at", "")
-                label = f"🔍 {check_id} — {detected_at}"
+                label = f"Inspection: {check_id} — {detected_at}"
                 with st.expander(label):
                     blame_chain = v.get("blame_chain", [])
                     if blame_chain:
@@ -291,7 +409,7 @@ with tab_violations:
                                 "timestamp": entry.get("commit_timestamp", ""),
                                 "confidence": entry.get("confidence_score", 0.0),
                             })
-                        st.dataframe(pd.DataFrame(bc_rows), use_container_width=True, hide_index=True)
+                        st.dataframe(pd.DataFrame(bc_rows), width='stretch', hide_index=True)
                     else:
                         st.caption("No blame chain data")
 
@@ -326,9 +444,9 @@ with tab_evolution:
                 verdict = evolution.get("compatibility_verdict", "COMPATIBLE")
                 st.markdown(f"#### Contract: `{contract_id}`")
                 if verdict == "COMPATIBLE":
-                    st.success(f"✅ Compatibility Verdict: {verdict}")
+                    st.success(f"Compatibility Verdict: {verdict}")
                 else:
-                    st.error(f"🚨 Compatibility Verdict: {verdict}")
+                    st.error(f"Compatibility Verdict: {verdict}")
 
                 # Collect all changes from pair_diffs or top-level changes
                 all_changes = []
@@ -349,7 +467,7 @@ with tab_evolution:
                         change_type = c.get("change_type", "")
                         field = c.get("field_path", c.get("field", ""))
                         message = c.get("message", "")
-                        label = f"{'🟢 COMPATIBLE' if compatible else '🔴 BREAKING'} — `{field}` ({change_type})"
+                        label = f"{'COMPATIBLE' if compatible else 'BREAKING'} — {field} ({change_type})"
                         if compatible:
                             st.success(label)
                         else:
@@ -398,11 +516,11 @@ with tab_ai:
                 st.progress(min(1.0, float(drift_score) / max(float(threshold) * 2, 0.01)),
                             text=f"Drift score: {drift_score:.4f} (threshold: {threshold})")
                 if drift_status == "PASS":
-                    st.success(f"✅ {drift_status}")
+                    st.success(drift_status)
                 elif drift_status == "FAIL":
-                    st.error(f"🚨 {drift_status}")
+                    st.error(drift_status)
                 else:
-                    st.warning(f"⚠️ {drift_status}")
+                    st.warning(drift_status)
 
             # LLM violation rate
             output_rate = ai_data.get("output_violation_rate", {})
@@ -427,30 +545,93 @@ with tab_ai:
                     st.caption(f"Valid: {valid_count} / Total: {total}")
 
             # Full raw data in expander
-            with st.expander("Raw AI Extensions Data"):
+            with st.expander("System Observability (LangSmith)"):
+                project_name = os.getenv("LANGSMITH_PROJECT", "data-contract-enforcer")
+                st.write(f"Tracing Project: `{project_name}`")
+                st.markdown(f"[Go to LangSmith Dashboard](https://smith.langchain.com/projects/p/{project_name})")
+                st.code(f"Environment: LANGCHAIN_TRACING_V2=true")
+            
+            with st.expander("Raw AI Metrics"):
                 st.json(ai_data)
         except Exception as e:
             st.error(f"Error rendering AI risk panel: {e}")
 
 # ---------------------------------------------------------------------------
-# Panel 5 — Contract coverage table
+# Panel 5 — Data Contracts & AI Enrichment
+# ---------------------------------------------------------------------------
+
+with tab_contracts:
+    st.subheader("Data Contracts & AI Enrichment")
+    contracts = load_contracts()
+    if not contracts:
+        st.info("No generated contracts found. Run the pipeline first.")
+    else:
+        try:
+            selected_display = st.selectbox(
+                "Select System Contract",
+                options=[c["display_name"] for c in contracts],
+                index=0
+            )
+            contract = next(c for c in contracts if c["display_name"] == selected_display)
+            content = contract["content"]
+            
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                st.markdown("**Core Schema**")
+                schema = content.get("schema", {})
+                schema_rows = []
+                for field, details in schema.items():
+                    schema_rows.append({
+                        "Field": field,
+                        "Type": details.get("type", ""),
+                        "AI Enrichment (Annotation)": details.get("llm_annotation", "-")
+                    })
+                st.dataframe(pd.DataFrame(schema_rows), width='stretch', hide_index=True)
+            
+            with col2:
+                st.markdown("**Lineage (Graph Info)**")
+                lineage = content.get("lineage", {})
+                upstream = lineage.get("upstream", [])
+                downstream = lineage.get("downstream", [])
+                
+                if upstream:
+                    st.markdown("- **Upstream Producers**")
+                    for u in upstream:
+                        st.markdown(f"  - `{u.get('id', 'unknown')}`")
+                
+                if downstream:
+                    st.markdown("- **Downstream Consumers**")
+                    for d in downstream:
+                        st.markdown(f"  - `{d.get('id', 'unknown')}`")
+                
+                if not upstream and not downstream:
+                    st.caption("No lineage metadata in this contract version.")
+            
+            with st.expander("View Raw Bitol YAML"):
+                import yaml
+                st.code(yaml.dump(content, sort_keys=False), language="yaml")
+                
+        except Exception as e:
+            st.error(f"Error rendering contracts tab: {e}")
+
+# ---------------------------------------------------------------------------
+# Panel 6 — Contract coverage table
 # ---------------------------------------------------------------------------
 
 with tab_coverage:
     st.subheader("Contract Coverage")
     try:
-        # Known inter-system interfaces
-        interfaces = [
-            ("W1→W2", "week1-intent-records"),
-            ("W3→W4", "week3-document-refinery-extractions"),
-            ("W4→W7", "week4-lineage"),
-            ("W5→W7", "week5-event-records"),
-            ("LangSmith→W7", "langsmith-traces"),
-            ("W2→W7", "week2-verdicts"),
-        ]
+        # Dynamic interfaces based on generated contracts
+        interfaces = []
+        for contract in load_contracts():
+            cid = contract["id"]
+            interfaces.append((get_system_name(cid), cid))
+        
+        # Add specialLangSmith entry if applicable
+        interfaces.append(("Trace Observability (AI)", "langsmith-traces"))
 
-        contract_files = load_contracts()
-        contract_stems = {f.stem for f in contract_files}
+        contracts = load_contracts()
+        contract_ids = {c["id"] for c in contracts}
 
         validation_reports = load_validation_reports()
         # Build a map: contract_id → latest result
@@ -464,16 +645,16 @@ with tab_coverage:
 
         rows = []
         for interface_label, contract_id in interfaces:
-            has_contract = contract_id in contract_stems
+            has_contract = contract_id in contract_ids
             last_result = latest_result.get(contract_id, "—")
             rows.append({
                 "Interface": interface_label,
-                "Contract": "✅ Yes" if has_contract else "❌ No",
+                "Contract": "Active" if has_contract else "Missing",
                 "Last Result": last_result,
             })
 
         coverage_df = pd.DataFrame(rows)
-        st.dataframe(coverage_df, use_container_width=True, hide_index=True)
+        st.dataframe(coverage_df, width='stretch', hide_index=True)
 
         covered = sum(1 for r in rows if "Yes" in r["Contract"])
         st.caption(f"Coverage: {covered}/{len(interfaces)} interfaces have contracts")

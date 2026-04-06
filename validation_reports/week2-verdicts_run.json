@@ -1,17 +1,17 @@
 {
-  "report_id": "2c5c336f-9815-46e2-90c3-1c6029792030",
-  "contract_id": "week3-document-refinery-extractions",
-  "snapshot_id": "440a1f89af8bd45ce0cddb42d845f178d44c3cdf525eb6a5350c393b22ac59a9",
-  "run_timestamp": "2026-04-05T02:13:26.963151+00:00",
-  "total_checks": 26,
+  "report_id": "0231f174-771d-4a29-81ec-cc15ad020d36",
+  "contract_id": "week2-verdicts",
+  "snapshot_id": "994038c7c9cb6508566196cd6c73564de80f48da1d115af8825870ec92d75d21",
+  "run_timestamp": "2026-04-06T09:51:45.767932+00:00",
+  "total_checks": 25,
   "passed": 24,
-  "failed": 2,
+  "failed": 1,
   "warned": 0,
   "errored": 0,
   "results": [
     {
-      "check_id": "week3-document-refinery-extractions.doc_id.required",
-      "column_name": "doc_id",
+      "check_id": "week2-verdicts.verdict_id.required",
+      "column_name": "verdict_id",
       "check_type": "required",
       "status": "PASS",
       "actual_value": "",
@@ -22,8 +22,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.doc_id.type",
-      "column_name": "doc_id",
+      "check_id": "week2-verdicts.verdict_id.type",
+      "column_name": "verdict_id",
       "check_type": "type",
       "status": "PASS",
       "actual_value": "",
@@ -34,8 +34,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.doc_id.uuid",
-      "column_name": "doc_id",
+      "check_id": "week2-verdicts.verdict_id.uuid",
+      "column_name": "verdict_id",
       "check_type": "uuid",
       "status": "PASS",
       "actual_value": "",
@@ -46,8 +46,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.source_path.required",
-      "column_name": "source_path",
+      "check_id": "week2-verdicts.target_ref.required",
+      "column_name": "target_ref",
       "check_type": "required",
       "status": "PASS",
       "actual_value": "",
@@ -58,8 +58,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.source_path.type",
-      "column_name": "source_path",
+      "check_id": "week2-verdicts.target_ref.type",
+      "column_name": "target_ref",
       "check_type": "type",
       "status": "PASS",
       "actual_value": "",
@@ -70,8 +70,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.source_hash.required",
-      "column_name": "source_hash",
+      "check_id": "week2-verdicts.rubric_id.required",
+      "column_name": "rubric_id",
       "check_type": "required",
       "status": "PASS",
       "actual_value": "",
@@ -82,8 +82,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.source_hash.type",
-      "column_name": "source_hash",
+      "check_id": "week2-verdicts.rubric_id.type",
+      "column_name": "rubric_id",
       "check_type": "type",
       "status": "PASS",
       "actual_value": "",
@@ -94,8 +94,22 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extraction_model.required",
-      "column_name": "extraction_model",
+      "check_id": "week2-verdicts.rubric_id.uuid",
+      "column_name": "rubric_id",
+      "check_type": "uuid",
+      "status": "FAIL",
+      "actual_value": "55 non-UUID values",
+      "expected": "format: uuid (^[0-9a-f-]{36}$)",
+      "severity": "HIGH",
+      "records_failing": 55,
+      "sample_failing": [
+        "invalid-uuid-format"
+      ],
+      "message": "Column 'rubric_id' has 55 values that don't match UUID pattern."
+    },
+    {
+      "check_id": "week2-verdicts.rubric_version.required",
+      "column_name": "rubric_version",
       "check_type": "required",
       "status": "PASS",
       "actual_value": "",
@@ -106,8 +120,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extraction_model.type",
-      "column_name": "extraction_model",
+      "check_id": "week2-verdicts.rubric_version.type",
+      "column_name": "rubric_version",
       "check_type": "type",
       "status": "PASS",
       "actual_value": "",
@@ -118,8 +132,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.processing_time_ms.required",
-      "column_name": "processing_time_ms",
+      "check_id": "week2-verdicts.scores.required",
+      "column_name": "scores",
       "check_type": "required",
       "status": "PASS",
       "actual_value": "",
@@ -130,8 +144,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.processing_time_ms.type",
-      "column_name": "processing_time_ms",
+      "check_id": "week2-verdicts.scores.type",
+      "column_name": "scores",
       "check_type": "type",
       "status": "PASS",
       "actual_value": "",
@@ -142,8 +156,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.token_count_input.required",
-      "column_name": "token_count.input",
+      "check_id": "week2-verdicts.overall_verdict.required",
+      "column_name": "overall_verdict",
       "check_type": "required",
       "status": "PASS",
       "actual_value": "",
@@ -154,8 +168,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.token_count_input.type",
-      "column_name": "token_count.input",
+      "check_id": "week2-verdicts.overall_verdict.type",
+      "column_name": "overall_verdict",
       "check_type": "type",
       "status": "PASS",
       "actual_value": "",
@@ -166,8 +180,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.token_count_output.required",
-      "column_name": "token_count.output",
+      "check_id": "week2-verdicts.overall_score.required",
+      "column_name": "overall_score",
       "check_type": "required",
       "status": "PASS",
       "actual_value": "",
@@ -178,8 +192,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.token_count_output.type",
-      "column_name": "token_count.output",
+      "check_id": "week2-verdicts.overall_score.type",
+      "column_name": "overall_score",
       "check_type": "type",
       "status": "PASS",
       "actual_value": "",
@@ -190,8 +204,21 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_at.required",
-      "column_name": "extracted_at",
+      "check_id": "week2-verdicts.overall_score.statistical_drift",
+      "column_name": "overall_score",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
+      "check_id": "week2-verdicts.confidence.required",
+      "column_name": "confidence",
       "check_type": "required",
       "status": "PASS",
       "actual_value": "",
@@ -202,8 +229,8 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_at.type",
-      "column_name": "extracted_at",
+      "check_id": "week2-verdicts.confidence.type",
+      "column_name": "confidence",
       "check_type": "type",
       "status": "PASS",
       "actual_value": "",
@@ -214,8 +241,57 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_at.datetime",
-      "column_name": "extracted_at",
+      "check_id": "week2-verdicts.confidence.range",
+      "column_name": "confidence",
+      "check_type": "range",
+      "status": "PASS",
+      "actual_value": "min=0.7, max=1.0",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": ""
+    },
+    {
+      "check_id": "week2-verdicts.confidence.statistical_drift",
+      "column_name": "confidence",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
+      "check_id": "week2-verdicts.evaluated_at.required",
+      "column_name": "evaluated_at",
+      "check_type": "required",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": ""
+    },
+    {
+      "check_id": "week2-verdicts.evaluated_at.type",
+      "column_name": "evaluated_at",
+      "check_type": "type",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": ""
+    },
+    {
+      "check_id": "week2-verdicts.evaluated_at.datetime",
+      "column_name": "evaluated_at",
       "check_type": "datetime",
       "status": "PASS",
       "actual_value": "",
@@ -226,106 +302,15 @@
       "message": ""
     },
     {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_fact_id.type",
-      "column_name": "extracted_facts.fact_id",
-      "check_type": "type",
+      "check_id": "week2.overall_verdict.enum",
+      "column_name": "overall_verdict",
+      "check_type": "enum",
       "status": "PASS",
-      "actual_value": "",
-      "expected": "",
+      "actual_value": "0 non-conforming values",
+      "expected": "['FAIL', 'PASS', 'WARN']",
       "severity": null,
       "records_failing": 0,
-      "sample_failing": [],
-      "message": ""
-    },
-    {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_fact_id.uuid",
-      "column_name": "extracted_facts.fact_id",
-      "check_type": "uuid",
-      "status": "PASS",
-      "actual_value": "",
-      "expected": "",
-      "severity": null,
-      "records_failing": 0,
-      "sample_failing": [],
-      "message": ""
-    },
-    {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_text.type",
-      "column_name": "extracted_facts.text",
-      "check_type": "type",
-      "status": "PASS",
-      "actual_value": "",
-      "expected": "",
-      "severity": null,
-      "records_failing": 0,
-      "sample_failing": [],
-      "message": ""
-    },
-    {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_confidence.type",
-      "column_name": "extracted_facts.confidence",
-      "check_type": "type",
-      "status": "PASS",
-      "actual_value": "",
-      "expected": "",
-      "severity": null,
-      "records_failing": 0,
-      "sample_failing": [],
-      "message": ""
-    },
-    {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_confidence.range",
-      "column_name": "extracted_facts.confidence",
-      "check_type": "range",
-      "status": "FAIL",
-      "actual_value": "max=85.0, mean=85.0",
-      "expected": "min>=0.0, max<=1.0",
-      "severity": "CRITICAL",
-      "records_failing": 144,
-      "sample_failing": [],
-      "message": "max=85.0 > maximum=1.0"
-    },
-    {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_page_ref.type",
-      "column_name": "extracted_facts.page_ref",
-      "check_type": "type",
-      "status": "PASS",
-      "actual_value": "",
-      "expected": "",
-      "severity": null,
-      "records_failing": 0,
-      "sample_failing": [],
-      "message": ""
-    },
-    {
-      "check_id": "week3-document-refinery-extractions.extracted_facts_source_excerpt.type",
-      "column_name": "extracted_facts.source_excerpt",
-      "check_type": "type",
-      "status": "PASS",
-      "actual_value": "",
-      "expected": "",
-      "severity": null,
-      "records_failing": 0,
-      "sample_failing": [],
-      "message": ""
-    },
-    {
-      "check_id": "week3.extracted_facts.confidence.range",
-      "column_name": "extracted_facts.confidence",
-      "check_type": "range",
-      "status": "FAIL",
-      "actual_value": "max=85.0, mean=85.0",
-      "expected": "max<=1.0, min>=0.0",
-      "severity": "CRITICAL",
-      "records_failing": 144,
-      "sample_failing": [
-        85.0,
-        85.0,
-        85.0,
-        85.0,
-        85.0
-      ],
-      "message": "confidence is in 0-100 range, not 0.0-1.0. Breaking change detected."
+      "sample_failing": []
     }
   ]
 }

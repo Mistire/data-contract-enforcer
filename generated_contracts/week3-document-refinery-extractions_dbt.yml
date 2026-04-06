@@ -49,6 +49,10 @@ models:
     description: Column token_count.output
     tests:
     - not_null
+  - name: extra_metadata
+    description: Column extra_metadata
+    tests:
+    - not_null
   - name: extracted_at
     description: Column extracted_at
     tests:

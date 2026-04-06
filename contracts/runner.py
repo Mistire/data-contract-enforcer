@@ -656,6 +656,7 @@ def run_validation(
     df = _load_data(data_path)
 
     results: list[dict] = []
+    baseline_exists = False
 
     # If data is empty, emit ERROR for all schema fields
     if df.empty:

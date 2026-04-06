@@ -1,0 +1,55 @@
+kind: DataContract
+apiVersion: v3.0.0
+id: week2-verdicts
+info:
+  title: week2-verdicts
+  version: 1.0.0
+  owner: data-contract-enforcer
+servers:
+  local:
+    type: local
+    path: outputs/week2/verdicts.jsonl
+    format: jsonl
+schema:
+  verdict_id:
+    type: string
+    required: true
+    format: uuid
+    pattern: ^[0-9a-f-]{36}$
+  target_ref:
+    type: string
+    required: true
+  rubric_id:
+    type: string
+    required: true
+    format: uuid
+    pattern: ^[0-9a-f-]{36}$
+  rubric_version:
+    type: string
+    required: true
+  scores:
+    type: string
+    required: true
+    llm_annotation: A numerical representation of the evaluated performance or quality.
+  overall_verdict:
+    type: string
+    required: true
+  overall_score:
+    type: number
+    required: true
+  confidence:
+    type: number
+    required: true
+    minimum: 0.0
+    maximum: 1.0
+    description: Confidence score. Must remain 0.0-1.0 float. BREAKING if changed
+      to 0-100.
+    llm_annotation: A measure indicating the degree of certainty or reliability associated
+      with a particular score or prediction.
+  evaluated_at:
+    type: string
+    required: true
+    format: date-time
+lineage:
+  upstream: []
+  downstream: []

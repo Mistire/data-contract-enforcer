@@ -1,10 +1,10 @@
 {
-  "report_id": "6f9dc521-02cc-47f2-9ac5-e250f96b1db3",
+  "report_id": "b3ea7911-d869-4a4f-bf3d-3f186d512688",
   "contract_id": "week5-event-records",
   "snapshot_id": "33ca5eef5b6898b8a45c3b47cbc2eeec2af71d36314944ce79269ce1ba322ebf",
-  "run_timestamp": "2026-04-01T21:49:27.486679+00:00",
-  "total_checks": 154,
-  "passed": 142,
+  "run_timestamp": "2026-04-06T09:51:51.603609+00:00",
+  "total_checks": 179,
+  "passed": 167,
   "failed": 12,
   "warned": 0,
   "errored": 0,
@@ -160,6 +160,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.sequence_number.statistical_drift",
+      "column_name": "sequence_number",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_application_id.type",
       "column_name": "payload.application_id",
       "check_type": "type",
@@ -254,6 +267,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_loan_term_months.statistical_drift",
+      "column_name": "payload.loan_term_months",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_submission_channel.type",
@@ -678,6 +704,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_file_size_bytes.statistical_drift",
+      "column_name": "payload.file_size_bytes",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_file_hash.type",
       "column_name": "payload.file_hash",
       "check_type": "type",
@@ -700,6 +739,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_fiscal_year.statistical_drift",
+      "column_name": "payload.fiscal_year",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_uploaded_at.type",
@@ -882,6 +934,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_context_token_count.statistical_drift",
+      "column_name": "payload.context_token_count",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_started_at.type",
       "column_name": "payload.started_at",
       "check_type": "type",
@@ -930,6 +995,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_node_sequence.statistical_drift",
+      "column_name": "payload.node_sequence",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_page_count.type",
       "column_name": "payload.page_count",
       "check_type": "type",
@@ -940,6 +1018,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_page_count.statistical_drift",
+      "column_name": "payload.page_count",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_detected_format.type",
@@ -1050,6 +1141,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_tool_duration_ms.statistical_drift",
+      "column_name": "payload.tool_duration_ms",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_called_at.type",
       "column_name": "payload.called_at",
       "check_type": "type",
@@ -1098,6 +1202,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_overall_confidence.statistical_drift",
+      "column_name": "payload.overall_confidence",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_is_coherent.type",
       "column_name": "payload.is_coherent",
       "check_type": "type",
@@ -1132,6 +1249,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_documents_processed.statistical_drift",
+      "column_name": "payload.documents_processed",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_has_quality_flags.type",
@@ -1170,6 +1300,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_quality_flag_count.statistical_drift",
+      "column_name": "payload.quality_flag_count",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_ready_at.type",
       "column_name": "payload.ready_at",
       "check_type": "type",
@@ -1206,6 +1349,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_total_nodes_executed.statistical_drift",
+      "column_name": "payload.total_nodes_executed",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_total_llm_calls.type",
       "column_name": "payload.total_llm_calls",
       "check_type": "type",
@@ -1216,6 +1372,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_total_llm_calls.statistical_drift",
+      "column_name": "payload.total_llm_calls",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_total_tokens_used.type",
@@ -1230,6 +1399,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_total_tokens_used.statistical_drift",
+      "column_name": "payload.total_tokens_used",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_total_cost_usd.type",
       "column_name": "payload.total_cost_usd",
       "check_type": "type",
@@ -1242,6 +1424,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_total_cost_usd.statistical_drift",
+      "column_name": "payload.total_cost_usd",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_total_duration_ms.type",
       "column_name": "payload.total_duration_ms",
       "check_type": "type",
@@ -1252,6 +1447,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_total_duration_ms.statistical_drift",
+      "column_name": "payload.total_duration_ms",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_next_agent_triggered.type",
@@ -1440,6 +1648,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_fraud_score.statistical_drift",
+      "column_name": "payload.fraud_score",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_risk_level.type",
       "column_name": "payload.risk_level",
       "check_type": "type",
@@ -1462,6 +1683,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_anomalies_found.statistical_drift",
+      "column_name": "payload.anomalies_found",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_recommendation.type",
@@ -1638,6 +1872,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_rules_evaluated.statistical_drift",
+      "column_name": "payload.rules_evaluated",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_rules_passed.type",
       "column_name": "payload.rules_passed",
       "check_type": "type",
@@ -1648,6 +1895,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_rules_passed.statistical_drift",
+      "column_name": "payload.rules_passed",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_rules_failed.type",
@@ -1662,6 +1922,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_rules_failed.statistical_drift",
+      "column_name": "payload.rules_failed",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_rules_noted.type",
       "column_name": "payload.rules_noted",
       "check_type": "type",
@@ -1672,6 +1945,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_rules_noted.statistical_drift",
+      "column_name": "payload.rules_noted",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_has_hard_block.type",
@@ -1788,6 +2074,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_confidence.statistical_drift",
+      "column_name": "payload.confidence",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_approved_amount_usd.type",
       "column_name": "payload.approved_amount_usd",
       "check_type": "type",
@@ -1812,6 +2111,19 @@
       "message": ""
     },
     {
+      "check_id": "week5-event-records.payload_interest_rate_pct.statistical_drift",
+      "column_name": "payload.interest_rate_pct",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
+    },
+    {
       "check_id": "week5-event-records.payload_term_months.type",
       "column_name": "payload.term_months",
       "check_type": "type",
@@ -1822,6 +2134,19 @@
       "records_failing": 0,
       "sample_failing": [],
       "message": ""
+    },
+    {
+      "check_id": "week5-event-records.payload_term_months.statistical_drift",
+      "column_name": "payload.term_months",
+      "check_type": "statistical_drift",
+      "status": "PASS",
+      "actual_value": "",
+      "expected": "",
+      "severity": null,
+      "records_failing": 0,
+      "sample_failing": [],
+      "message": "",
+      "z_score": 0.0
     },
     {
       "check_id": "week5-event-records.payload_failure_reason.type",

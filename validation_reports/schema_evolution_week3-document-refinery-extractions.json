@@ -1,0 +1,68 @@
+{
+  "contract_id": "week3-document-refinery-extractions",
+  "generated_at": "2026-04-06T09:51:47.953484+00:00",
+  "snapshots_analyzed": 15,
+  "analysis_window": "7 days ago",
+  "total_changes": 1,
+  "breaking_changes": 1,
+  "compatible_changes": 0,
+  "compatibility_verdict": "BREAKING",
+  "pair_diffs": [
+    {
+      "from_snapshot": "20260406T083204Z",
+      "to_snapshot": "20260406T083208Z",
+      "changes": [
+        {
+          "field": "extra_metadata",
+          "change_type": "ADD_NONNULLABLE_COLUMN",
+          "compatible": false,
+          "message": "Add non-nullable column \u2014 coordinate with all producers",
+          "severity": "HIGH",
+          "old_value": null,
+          "new_value": {
+            "type": "string",
+            "required": true
+          }
+        }
+      ]
+    }
+  ],
+  "migration_impact": {
+    "contract_id": "week3-document-refinery-extractions",
+    "analysis_period": "20260401T214552Z to 20260406T091416Z",
+    "breaking_count": 1,
+    "compatible_count": 0,
+    "changes": [
+      {
+        "field": "extra_metadata",
+        "change_type": "ADD_NONNULLABLE_COLUMN",
+        "compatible": false,
+        "message": "Add non-nullable column \u2014 coordinate with all producers",
+        "severity": "HIGH",
+        "old_value": null,
+        "new_value": {
+          "type": "string",
+          "required": true
+        }
+      }
+    ],
+    "consumer_risks": [
+      {
+        "field": "extra_metadata",
+        "risk_level": "HIGH",
+        "affected_consumers": [
+          "default-consumer",
+          "bi-reporting",
+          "model-training"
+        ],
+        "failure_mode": "Consumer will experience ADD_NONNULLABLE_COLUMN on extra_metadata"
+      }
+    ],
+    "migration_checklist": [
+      "1. Coordinate with all producers for extra_metadata change",
+      "2. Deploy producers before consumers"
+    ],
+    "rollback_plan": "Revert to snapshot 20260401T214552Z and re-run ContractGenerator",
+    "compatibility_verdict": "BREAKING"
+  }
+}

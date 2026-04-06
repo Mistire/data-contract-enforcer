@@ -155,15 +155,62 @@ class SubscriptionRegistry:
 # ---------------------------------------------------------------------------
 
 def _column_to_node(failing_column: str, lineage_snapshot: dict) -> str | None:
-    """Map dot-notation column name to a lineage graph node_id."""
-    # Extract system prefix: "extracted_facts.confidence" → "week3"
-    system = failing_column.split(".")[0].split("_")[0]  # e.g. "extracted" → try "week3"
+    """Map dot-notation column name to a lineage graph node_id.
+    
+    Uses keyword matching to identify the source system from the column name
+    and match it to a node in the lineage graph.
+    """
+    # Map column-name keywords to system keywords that appear in node_ids
+    COLUMN_TO_SYSTEM = {
+        "extracted_facts": "week3",
+        "extraction": "week3",
+        "confidence": "week3",
+        "doc_id": "week3",
+        "source_hash": "week3",
+        "extraction_model": "week3",
+        "fact_id": "week3",
+        "entity": "week3",
+        "intent": "week1",
+        "code_refs": "week1",
+        "verdict": "week2",
+        "overall_verdict": "week2",
+        "scores": "week2",
+        "rubric": "week2",
+        "lineage": "week4",
+        "snapshot": "week4",
+        "node": "week4",
+        "edge": "week4",
+        "git_commit": "week4",
+        "event": "week5",
+        "aggregate": "week5",
+        "sequence": "week5",
+        "payload": "week5",
+    }
+    
+    # Try to find a matching system keyword from the column name
+    system_keyword = None
+    col_lower = failing_column.lower()
+    for keyword, system in COLUMN_TO_SYSTEM.items():
+        if keyword in col_lower:
+            system_keyword = system
+            break
+    
     nodes = lineage_snapshot.get("nodes", [])
+    
+    if system_keyword:
+        for node in nodes:
+            nid = node.get("node_id", "").lower()
+            if system_keyword in nid:
+                return node.get("node_id")
+    
+    # Fallback: try direct substring match on any node
     for node in nodes:
-        nid = node.get("node_id", "")
-        if system.lower() in nid.lower():
-            return nid
-    # Fallback: return first FILE node
+        nid = node.get("node_id", "").lower()
+        first_part = col_lower.split(".")[0]
+        if first_part in nid:
+            return node.get("node_id")
+    
+    # Last resort: return first FILE node
     for node in nodes:
         if node.get("type") == "FILE":
             return node.get("node_id")
@@ -285,14 +332,26 @@ def _compute_blast_radius(contract_path: str, estimated_records: int, field_path
 # Node → file path extraction
 # ---------------------------------------------------------------------------
 
-def _node_to_file_path(node_id: str) -> str | None:
-    """Extract a file path from a node_id like 'file::src/week3/extractor.py'."""
-    if "::" in node_id:
-        return node_id.split("::", 1)[1]
-    # If it looks like a path directly
-    if "/" in node_id or node_id.endswith(".py"):
-        return node_id
+def _node_to_file_path(node_id: str, lineage_snapshot: dict) -> str | None:
+    """Extract filesystem path from node metadata."""
+    nodes = lineage_snapshot.get("nodes", [])
+    for node in nodes:
+        if node.get("node_id") == node_id:
+            meta = node.get("metadata", {})
+            return meta.get("path") or meta.get("file_path")
     return None
+
+
+def _find_git_root(start_path: str | Path) -> str:
+    """Find the nearest .git directory by walking up from start_path."""
+    try:
+        current = Path(start_path).resolve()
+        for parent in [current] + list(current.parents):
+            if (parent / ".git").exists():
+                return str(parent)
+    except Exception:
+        pass
+    return "."
 
 
 # ---------------------------------------------------------------------------
@@ -323,7 +382,7 @@ def _attribute_violation(
     # 3. Collect git candidates from upstream file nodes
     all_commits: list[tuple[dict, int]] = []  # (commit, lineage_distance)
     for node_id, distance in upstream_nodes:
-        file_path = _node_to_file_path(node_id)
+        file_path = _node_to_file_path(node_id, lineage_snapshot)
         if file_path:
             commits = _run_git_log(file_path, repo_root=repo_root)
             for c in commits:
@@ -331,7 +390,7 @@ def _attribute_violation(
 
     # Also try the start node itself
     if start_node:
-        file_path = _node_to_file_path(start_node)
+        file_path = _node_to_file_path(start_node, lineage_snapshot)
         if file_path:
             commits = _run_git_log(file_path, repo_root=repo_root)
             for c in commits:
@@ -356,13 +415,13 @@ def _attribute_violation(
 
     # Attach file_path to each blame entry
     for entry in blame_chain:
-        if not entry.get("file_path") or entry["file_path"] == "":
+        if not entry.get("file_path") or entry["file_path"] == "" or entry["file_path"] == "unknown":
             # Try to find a matching file from upstream nodes
             if upstream_nodes:
-                fp = _node_to_file_path(upstream_nodes[0][0])
+                fp = _node_to_file_path(upstream_nodes[0][0], lineage_snapshot)
                 entry["file_path"] = fp or "unknown"
             elif start_node:
-                fp = _node_to_file_path(start_node)
+                fp = _node_to_file_path(start_node, lineage_snapshot)
                 entry["file_path"] = fp or "unknown"
 
     # Clamp to 5 entries
@@ -424,9 +483,10 @@ def main() -> None:
 
         detected_at = report.get("run_timestamp", datetime.now(timezone.utc).isoformat())
 
-        # Determine repo root (parent of the contract file's project)
-        contract_path = Path(args.contract)
-        repo_root = str(contract_path.parent.parent) if contract_path.parent.parent.exists() else "."
+        # Determine repo root (find .git root)
+        contract_path = Path(args.contract).resolve()
+        repo_root = _find_git_root(contract_path)
+        log.info("Using repo_root: %s", repo_root)
 
         # Prepare output
         output_path = Path(args.output)

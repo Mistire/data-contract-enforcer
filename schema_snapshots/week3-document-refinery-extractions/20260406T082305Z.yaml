@@ -1,15 +1,5 @@
-kind: DataContract
-apiVersion: v3.0.0
-id: week3-test
-info:
-  title: week3-test
-  version: 1.0.0
-  owner: data-contract-enforcer
-servers:
-  local:
-    type: local
-    path: outputs/week3/extractions.jsonl
-    format: jsonl
+contract_id: week3-document-refinery-extractions
+captured_at: '2026-04-06T08:23:05.826289+00:00'
 schema:
   doc_id:
     type: string
@@ -59,6 +49,3 @@ schema:
   extracted_facts.source_excerpt:
     type: string
     required: false
-lineage:
-  upstream: []
-  downstream: []

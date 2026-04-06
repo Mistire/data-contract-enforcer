@@ -1,0 +1,11 @@
+{
+  "contract_id": "week5-event-records",
+  "generated_at": "2026-04-06T09:51:53.395329+00:00",
+  "snapshots_analyzed": 4,
+  "analysis_window": "7 days ago",
+  "total_changes": 0,
+  "breaking_changes": 0,
+  "compatible_changes": 0,
+  "compatibility_verdict": "COMPATIBLE",
+  "pair_diffs": []
+}

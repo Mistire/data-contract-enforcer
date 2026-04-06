@@ -1,15 +1,5 @@
-kind: DataContract
-apiVersion: v3.0.0
-id: week1-intent-records
-info:
-  title: week1-intent-records
-  version: 1.0.0
-  owner: data-contract-enforcer
-servers:
-  local:
-    type: local
-    path: outputs/week1/intent_records.jsonl
-    format: jsonl
+contract_id: week1-intent-records
+captured_at: '2026-04-06T08:22:59.135200+00:00'
 schema:
   intent_id:
     type: string
@@ -19,8 +9,8 @@ schema:
   description:
     type: string
     required: true
-    llm_annotation: The 'description' column provides a textual narrative summarizing
-      the user's inferred intent or purpose behind an action or interaction.
+    llm_annotation: The 'description' column provides a textual explanation or summary
+      of a specific event, item, or observation for improved understanding and context.
   created_at:
     type: string
     required: true
@@ -47,10 +37,3 @@ schema:
   governance_tags:
     type: string
     required: false
-lineage:
-  upstream: []
-  downstream:
-  - id: file::src/week2/auditor.py
-    fields_consumed:
-    - doc_id
-    - extracted_facts
